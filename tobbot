@@ -1,0 +1,1612 @@
+const express = require("express");
+const app = express();
+const database = require("@replit/database");
+const db = new database();
+const fetch = require("@replit/node-fetch");
+const axios = require("axios");
+const he = require("he");
+const weather = require("openweather-apis");
+const cron = require("node-cron");
+const request = require("request");
+const fs = require('fs');
+const keep_alive = require('./keep_alive.js');
+const util = require('util');
+const Discord = require("discord.js");
+const { EventEmitter } = require('events');
+const client = new Discord.Client({intents: ["GUILDS", "GUILD MESSAGES"]});
+EventEmitter.defaultMaxListeners = 500;
+const channelId = "841107329192951848";
+
+app.get("/", (req, res) => {
+  res.send(`
+    <html>
+      <head>
+        <title>Server Ping</title>
+      </head>
+      <body>
+        <h1>toBBot Legacy Prefix Command Directory</h1>
+        <p>This is a ping response from the server.</p>
+        <p>Current time: ${new Date()}</p>
+               <a href="https://tobbot.vectorgraphicz.repl.co/">Check out our new Slash Command directory!</a>
+       <a href="https://tobbot.vectorgraphicz.repl.co/help>Commands list</a>
+      </body>
+    </html>
+  `);
+});
+app.get("/ping", (req, res) => {
+  res.send(`ping`);
+});
+
+
+app.listen(2000, () => {
+  console.log("wow it works.");
+});
+
+async function sendVerseOfTheDay() {
+  try {
+    const response = await fetch("https://www.biblegateway.com/votd/get/?format=json");
+    const data = await response.json();
+    const { verseurl, reference, text } = data.votd;
+    const decodedText = he.decode(text).replace(/[[]]/g, "");
+    const embed = new Discord.MessageEmbed()
+      .setTitle(he.decode(reference))
+      .setDescription(decodedText)
+      .setURL(`https://www.biblegateway.com/passage/?search=${verseurl}&version=NIV`)
+      .setColor("YELLOW")
+    const channel = await client.channels.fetch(channelId);
+    await channel.send(embed);
+  } catch (error) {
+    console.error("Error sending verse of the day", error);
+  }
+}
+
+cron.schedule("0 9 * * *", sendVerseOfTheDay); 
+
+async function sendWordOfTheDay() {
+  try {
+    const response = await fetch('https://api.wordnik.com/v4/words.json/wordOfTheDay?api_key=lcwzt69rcg3xdo3lqm8ew5439zhm89pbtigty4os863b6d2hy');
+    const data = await response.json();
+    const word = data.word;
+    const definition = data.definitions[0].text;
+
+    const embed = new Discord.MessageEmbed()
+      .setColor('#0099ff')
+      .setTitle(`Word of the Day: “${word}”`)
+      .setDescription(definition);
+
+    const channel = await client.channels.fetch('841107329192951848');
+
+    await channel.send(embed);
+  } catch (error) {
+    console.error('Error sending word of the day', error);
+  }
+}
+cron.schedule('0 17 * * *', sendWordOfTheDay); 
+
+async function fetchAndSendDailyNews() {
+  const apiKey = '59002a36970b49bcb9b073878ab360b6';
+
+  try {
+    // Make the API request to fetch world news
+    const response = await fetch(`https://newsapi.org/v2/top-headlines?language=en&apiKey=${apiKey}`);
+    const data = await response.json();
+
+    const randomIndex = Math.floor(Math.random() * data.articles.length);
+    const randomArticle = data.articles[randomIndex];
+
+    const embed = new Discord.MessageEmbed()
+      .setColor('#ff0000')
+      .setTitle(`News Article of the Day: ${randomArticle.title}`)
+      .setDescription(randomArticle.description)
+      .setURL(randomArticle.url)
+      .setImage(randomArticle.urlToImage);
+    
+    const channel = await client.channels.fetch("841002213328420914");
+    await channel.send(embed);
+  } catch (error) {
+    console.error("Error sending news article of the day", error);
+  }
+}
+cron.schedule('0 13 * * *', fetchAndSendDailyNews); 
+
+
+client.on("ready", () => {
+  console.log(`Logged in as ${client.user.tag}!`);
+});
+
+client.snipe = new Discord.Collection()
+client.on("messageDelete", deletedMsg => {
+ client.snipe.set(deletedMsg.channel.id, deletedMsg)
+})
+
+client.on("guildMemberAdd", member => {
+  if(member.guild.id === "677398550837067787") {
+    client.channels.cache.get("704172197488492586").send(`Welcome ${member}!`)
+  }
+})
+
+
+
+client.on("ready", () => {
+  client.user.setPresence( {activity: {name: ""} } )
+})
+
+
+// General Response
+client.on("message", async message => {
+  if(message.content.toLowerCase() === "ping") {
+  message.channel.send("pong")
+      message.react('🏓')
+} else if(message.content.toLowerCase() === "thunk") {
+  message.channel.send("able")
+      message.react('<:emoji:1021886783677538417>')
+}  else if(message.content.toLowerCase() === "Thunk") {
+  message.channel.send(`Able`)
+    message.react('<:emoji:1021886783677538417>')
+} else if (message.content.toLowerCase().startsWith('-coinflip')) {
+    const result = Math.floor(Math.random() * 2);
+    if (result === 0) {
+      message.reply('heads!');
+    } else {
+      message.reply('tails!');
+    }
+  }
+  
+
+  
+client.on('ready', async () => {
+  client.setInterval(sendQuote, 86400000);
+});
+
+    if(message.content.toLowerCase().includes ("thunkable") ||
+      message.content.includes("Thunkable")) {
+   message.channel.send("<:emoji:1021886783677538417>")
+      message.react('<:emoji:1021886783677538417>')
+}  else if(message.content.includes ("Aragorn")) {
+      message.react('<:Aragorn:1066857688648142960> ')
+}  else if(message.content.toLowerCase().includes ("m2server") ||
+    message.content.toLowerCase().includes("elcome") ||
+    message.content.toLowerCase().includes("cellondon")) {
+   message.channel.send("We hope you have a wonderful time! <:emoji:1021886783677538417> <:emoji:1044641438668955729> <:bachchoy:1076541726308704377> <:Grogu:1069002022751322363> <:Dogkek:1064723835934494814>")
+  message.react('<:cool:1036743008852381797>')
+} else if(message.content.toLowerCase().includes ("noob")) {
+   message.channel.send("no you")
+  message.react('<:noob:1097120638562476032> ')
+} else if(message.content.includes("sad to see you go")) {
+            message.react('<:sad:1036743409773318307>')
+  message.channel.send("https://gifdb.com/images/high/obi-wan-kenobi-goodbye-there-3kyp4kihyyyrusz7.gif")
+} else if(message.content.toLowerCase().includes ("ratio")) {
+   message.channel.send("COUNTER HAHAHA")
+      message.react('🇱')
+} else if(message.content.toLowerCase().includes ("jesus")) {
+   message.channel.send("Our lord and saviour")
+}
+if (!message.author.bot && message.content.toLowerCase().includes("hooker")) {
+  message.channel.send("Sullivan, have you ever brought a hooker to church?");
+} else if (message.content.toLowerCase().includes('pro')) {
+  if (Math.random() < 0.5) {
+    message.react("<:pro:1098210396436959333> ");
+  } else {
+    message.react("<:imthesenate:1100158018676609044>");
+  }
+} else if (message.content.toLowerCase().includes('heck') || 
+          message.content.toLowerCase().includes('umm') ||
+          message.content.toLowerCase().includes('uhh')) {
+   message.react("<:heck:1098209844084867082>")
+} else if (message.content.toLowerCase().includes('hook') || 
+            message.content.toLowerCase().includes('🪝')) {
+   message.react("🪝")
+}
+         if (message.content.toLowerCase().includes('stupid')) {
+   message.reply("no you")
+  message.react('<:angry:1066855267460972655>')
+}
+         if (message.content.toLowerCase().includes('Bach')) {
+    message.react('<:bachchoy:1076541726308704377>')
+}
+         if (message.content.toLowerCase().includes('hellas') ||
+    message.content.toLowerCase().includes("greece")) {
+   message.react('🇬🇷')
+}
+       if (message.content.toLowerCase().includes('thank') ||
+    message.content.includes("Merci") ||
+    message.content.toLowerCase().includes("gracias") ||
+   message.content.toLowerCase().includes("grazie") ||
+    message.content.toLowerCase().includes("merci")) {
+  message.react('<:smileylaugh:1036743134970904586>')
+   message.channel.send("Pas de problème")
+}
+      if(message.content.toLowerCase().includes("gus")) {
+   message.channel.send("Visit this site for more information: https://bit.ly/ycdsbk12")
+     message.react('<:GUS:1050869007965757450> ')
+}
+        if(message.content.toLowerCase().includes ("shut up")) {
+   message.reply("Don't talk back to me")
+  message.react('<:angry:1066855267460972655>')
+}
+          if(message.content.toLowerCase().includes ("hehe") ||
+    message.content.toLowerCase().includes("haha")) {
+  message.react('<:heheheha:1095045704356995223> ')
+}
+
+      if(message.content.toLowerCase().includes ("b**ch") ||
+          message.content.toLowerCase().includes("frick") ||
+          message.content.toLowerCase().includes("fuck") ||
+          message.content.toLowerCase().includes("cunt") ||
+          message.content.toLowerCase().includes("shit") ||
+          message.content.toLowerCase().includes("bitch") ||
+          message.content.toLowerCase().includes("*ck") || 
+          message.content.toLowerCase().includes("what the") ||
+          message.content.toLowerCase().includes(" hell ") ||
+          message.content.toLowerCase().includes("sh*t")||
+          message.content.toLowerCase().includes("*k")||
+          message.content.toLowerCase().includes("crap")||
+          message.content.toLowerCase().includes("fk")) {
+   message.reply("Swearing is not caring.")
+     message.react('🤬')
+}
+  
+      if(message.content.toLowerCase() === "!hello-there"){  message.channel.send("https://media2.giphy.com/media/xTiIzJSKB4l7xTouE8/giphy.gif")
+}  else if(message.content.toLowerCase() === "!general-kenobi"){
+message.channel.send("https://media.tenor.com/L5n55GiSbx4AAAAd/general-kenobi-turn-around.gif")
+}
+  
+      if(message.content.toLowerCase() === "-invite"){
+   message.channel.send("Invite and customize toBBot in your own server today! https://dsc.gg/tobbot")
+}
+    if(message.content.toLowerCase().startsWith("-vote")){
+    const embed = new Discord.MessageEmbed()
+    .setColor('#00FF00')
+    .setTitle(`Vote for toBBot`)
+    .setDescription(`Vote to support toBBot! You may vote on [top.gg](https://top.gg/bot/704185963483496506/vote) and [discordbotlist](https://discordbotlist.com/bots/tobbot/upvote) once every 12 hours!`)
+    .setURL("https://top.gg/bot/704185963483496506/")
+    .addField('Vote on top.gg','[top.gg](https://top.gg/bot/704185963483496506/vote)')
+    .addField("Vote on discordbotlist","[discordbotlist](https://discordbotlist.com/bots/tobbot/upvote)")
+.setThumbnail("https://cdn.discordapp.com/emojis/982309135494303804.png")
+    .setTimestamp();
+  message.channel.send(embed);
+}
+  
+  if (message.content.toLowerCase().includes("gg")) {
+    if (Math.random() < 0.5) {
+      message.react("<:gg:1097643120939769856>");
+    } else {
+      message.react("<:noob:1097120638562476032>");
+    }
+  }
+  
+  if(message.content.toLowerCase().includes("hello there")) {
+   message.channel.send(`stop stealing my lines!`)
+      }
+  
+if (message.content.toLowerCase().includes("bruh")) {
+  if (Math.random() < 0.5) {
+    message.react("<:slapface:1097641688522051674>");
+  } else {
+    message.react("<:bruh:1097118884856868944> ");
+  }
+}
+
+
+  
+      if(message.content.toLowerCase().startsWith("-beatitudes")) {
+message.channel.send("https://media.discordapp.net/attachments/841107329192951848/1069690353503981578/Screenshot_2023-01-30_at_1.44.07_PM.png")
+} else if(message.content.toLowerCase().includes("i am the senate")) {
+  message.channel.send("I believe that's me")
+    message.react('<:imthesenate:1100158018676609044>')
+} else if(message.content.toLowerCase() === "-commandments") {
+  message.channel.send(`> **1. I, the Lord, am your God.  You shall not have other gods besides me.**
+> **2. You shall not take the name of the Lord, your God, in vain.**
+> **3. Remember to keep holy the Lord's day.**
+> **4. Honour your father and your mother.**
+> **5. You shall not kill.**
+> **6. You shall not commit adultery.**
+> **7. You shall not steal.**
+> **8. You shall not bear false witness against your neighbour.**
+> **9. You shall not covet your neighbour's wife.**
+> **10. You shall not covet your neighbour's goods.**`)
+}
+  if(message.content.startsWith("-balance") ||
+    message.content.startsWith("-bal")) {
+  let balance = await db.get(`wallet_${message.author.id}`)
+  let bank = await db.get(`bank_${message.author.id}`)
+
+  if (balance === null) balance = 0
+  if (bank===null) bank = 0
+const currency = "$"
+    let moneyEmbed = new Discord.MessageEmbed()
+    .setTitle(`${message.author.username}'s Balance`) .setDescription(`**Wallet**: ${currency}${balance}\n**Bank**: ${currency}${bank}`)
+    .setColor("RANDOM")
+      .setFooter(`Currency commands are coming soon!`)
+    .setThumbnail (message.author.displayAvatarURL({dynamic: true}))
+    message.channel.send(moneyEmbed)
+}
+
+
+
+// REAL commands
+  
+if (message.content.toLowerCase() === "-help" || 
+   message.content.toLowerCase() === "-commands") {
+    let embed = new Discord.MessageEmbed()
+    .setTitle("List of commands:")
+    .setDescription(`**The default prefix for this bot is (-).**
+   >>> - \`-rules\` Check this command out for the full guidelines and rules of this bot. \n
+**General Entertainment**
+- \`-bibletoday\` Sends a daily bible verse! \n
+- \`-meme\` or \`-mapmeme\` Feeling bored? use this command for some memes! \n
+- \`-news\` Stay connected with current world events! \n
+- \`-joke\` Sends a joke to keep you entertained. \n
+- \`-fact\` Sends a random completely random fun fact you've probably > never known!. \n
+
+**toB Configuration Commands**
+>>> - \`-say\` Make the bot to say something of your own choice! \n
+- \`-dm\` Make the bot DM any member of the server anonymously. \n
+- \`-reminder\` Remind yourself of upcoming events! \n  *Usage: \`-reminder [duration] [channel] [event]\`* \n
+- \`-poll\` make a custom poll for your peers to vote on! \n  *Usage: \`-poll [title],[option 1],[option 2]\`* \n
+
+**Informational Commands**
+ - \`-trivia\` Test your knowledge with this command! \n
+- \`-animal\` Learn more about the animal command and a look at cute animals! Awwwww.  \n
+- \`-quote / -advice\` Use this command for random quotes by notable people to help you feel motivated and move forward in life! \n
+- \`-randomword\` This command sends you a completely random word from the dictionary! \n
+- \`-rhyme & -thesaurus\` Use these commands to find rhyming words or synonyms. Useful for essay writing.
+- \`-convertcurrency\` Convert any pairs of currencies of your choice! Usage: \`-convertcurrency USD CAD 20000\`
+- \`-define [word]\` Don't know a word? Simple solution! Use this command to get a detailed definition of any word in the English dictionary, including synonyms and other general info! \n
+- \`-imagetotext\` Are you lazy and don't want to type down the words inside of an image? Simple solution: attach the image with the command \`-imagetotext which uses AI to extract the text from your image in seconds.\` \n
+- \`-weather ; -forecast\` Check the current weather or the 5-day weather forecast for any city! \n
+- \`-inflation\` Check the inflation rate of any country \n
+- \`-history\` look up historical events from any country! \n
+**Abstract Commands**
+- \`-random\` Sends a completely random post from Reddit, with no limit. You have been warned… \n
+- \`-bucketlist\` Get some ideas and plan your goals you may want to accomplish before dying. \n
+- \`-kill\` Getting sick of someone? Easy! Kill them with this command! \n
+- \`-givetrait \`/ \`-namemme \`/ \`-fortune\` Gives you a character name, trait or fortune! \n
+- \`-vote\` Support the bot by voting on top.gg and discordbotlist every 12 hours!`)
+    .setColor("RANDOM")
+    .setFooter("If available, use /help menu for slash commands.")
+    message.channel.send(embed)
+  }
+  if (message.content.toLowerCase() === "-rules" || 
+   message.content.toLowerCase() === "-guidelines") {
+    let embed = new Discord.MessageEmbed()
+    .setTitle("toBBot's Offical guidelines: The Ten Golden Rules")
+    .setDescription(`>>> **1. Targeted hate or harassment (racism or sexism) is ABSOLUTELY PROHIBITED when using the bot \n
+2. Spamming commands and using the bot to spam-ping someone is PROHIBITED. Doing so will grant you a temporary ban of 1 day from using this bot. \n
+3. RESPECT all religions and political opinions. While this bot has a \`-bible\` and \`-catechism\` command, it is important to respect all religions, no matter what you believe in. \n
+4. Using this bot to promote hate speech, any form of NSFW, or political propaganda is strictly prohibited, and will result in a PERMANENT BAN. \n
+5. It is prohibited to misuse or spam the \`-dm\` command on users and make fun of others with this command. Doing so will also result in a ban and public humiliation. \n
+6. Promoting any extremist ideology through using this bot is also a serious offence and may result in a permanent ban. \n
+7. You may not use alt accounts to manipulate this bot by spamming DMs or commands. \n
+8. We have ZERO tolerance for using this bot to promote self harm or suicide. Doing so may also earn you a permanent IP ban from Discord themselves. \n
+9. Any memes and jokes generated by toBBot are fetched online; they are NOT endorsed by the bot or its creator. \n
+10. Abide by Discord's official TOS and use the bot respectfully.**`)
+    .setColor("RANDOM")
+    .setFooter("Failure to comply with ANY of these rules may result in a temporary or permanent ban from the bot.")
+    message.channel.send(embed)
+  }
+
+    if (message.content.toLowerCase() === "-animals" || 
+       message.content.toLowerCase() === "-animal") {
+    let embed = new Discord.MessageEmbed()
+    .setTitle("List of Animals Commands")
+    .setDescription(` Welcome to the ANIMALS command! You can use any of the inputs below to retreive an image, the description, and also a fact of the selected animal of your choice! Here are a list of animals that are supported so far: \n
+   1. \`-animal dog\` 
+   2. \`-animal duck\` 
+   3. \`-animal giraffe\` 
+   4. \`-animal pig\` 
+   5. \`-animal panda\` 
+   6. \`-animal bird\` 
+   7. \`-animal lion\` 
+   8. \`-animal horse\` `)
+    .setColor("RANDOM")
+    message.channel.send(embed)
+  }
+});
+
+client.on("message", async message => {
+  if (message.content === "give me the winning smile") {
+    message.channel.send("toB blesses you with the winning smile.")
+  }
+  if(message.content.startsWith("-givename") || message.content.startsWith("-Givename")|| message.content.startsWith("-nameme")|| message.content.startsWith("-Nameme")) {
+    let nicknames = ["Dumbo", "Idioto", "Idiota","Proliver", "Mad Max", "good guy", "ricardo", "Robinson Crusoe", "orange guy", "weeb", "superior", "Huckleberry Finn", "Tom", "Matt", "Quid", "Iqduo", "Ozias", "BRUNO", "e", "Chad 😎", "DHAR MANN","Mastermind","Bob","Gus","Sam","Ben","NOlan","Tyler","Mark","Mad","Edgar","Viggomortensen","Aragorn","Treebeard","Snowball","Napoleon","Marco","Quellian","Bilbo","Arwen","Annabelle","OkBoomer","emaNoN","no name","Clover","Winston","Abigail","Hortensio","Catherine","Mao Tse Tung","undefined","Wokie","Smartio","Gandalph","Katherino"]
+    message.channel.send(`"${nicknames[Math.floor(Math.random() * nicknames.length)]}" is your new name. Be proud of it.`)
+  }
+  
+  
+  if (message.content.toLowerCase().startsWith("-kill")) {
+    let victim = message.mentions.users.first()
+    if (!victim) message.reply("do that again, but this time actually mention someone to kill them")
+    else {
+      let possibilities = ["dies from contracting cringe disease","dies from eating too much pizza LOL","DIES OF CRINGE XD","does ***NOT*** get killed because I SAID SO","**SURVIVES** from cringe disease, and **MURDERS** you right on the spot. Haha, looks who's laughing now!","chokes on a grain of rice LMAO","dies from SKILL ISSUE LMAO","fogets to breathe air and suffocates","survives and shoots you right on the spot","gets revenge and KILLS YOU without mercy","dies from cringe","forgets to drink their water and dies from dehydration","falls from a high place and unfortunately passes away","gets annihilated","survives. Leave this innocent person alone.","mistakes cyanide for apple juice, drinks it and passes away","https://tenor.com/view/dies-from-cringe-pink-skull-cgi-render-gif-23154103","is backstabbed by their jealous best friend, and unfortunately, dies.","dies after eating a spider","walks on North Sentinel Island and gets captured by the Sentinelese","dies after drinking too much vodka","falls in a pool and drowns","dies","hears you laughing at their funeral and comes back from the dead to whoop your ass","chokes on a grain of salt","inhales too much carbon dioxide and suffocates","accidentally gets ejected from their rocket as they travel in space","is swallowed by a boa constrictor","is ratioed too much on twitter and dies of cringe","sees the attack coming and murders you first","outsmarts you and kills you before you even get the chance to attack them","goes into a 5-month coma", "sees you coming from behind and fatally stabs you with their knife", "is stabbed in the stomach but survives", "eats too much wasabi and dies of spice","dies of boredom",", the infamous discord mod, finally goes outside but is immediately vapourized by the sun","Dies but comes back to life and kills you after hearing you laugh at their funeral"]
+      message.channel.send(`${victim} ${possibilities[Math.floor(Math.random() * possibilities.length)]}`)
+    }
+  }
+  if(message.content.toLowerCase().startsWith("-kick")) {
+    if(message.member.hasPermission("KICK_MEMBERS")) {
+      let member = message.mentions.members.first()
+      if (!member) message.channel.send("Please mention someone")
+      else {
+        member.kick().then (mem => {
+          message.channel.send(`Kicked ${mem.user.username}!`)
+           member.send(`You have been kicked from ${message.guild.name}`);
+        })
+      }
+    } else {
+        message.reply("You don't have permission to do that!")
+      }
+    }
+  
+if (message.content.toLowerCase().startsWith('-userinfo')) {
+  const args = message.content.slice('-userinfo'.length).trim().split(/ +/);
+  const query = args.join(' ').toLowerCase();
+  let member;
+  if (message.mentions.members.size > 0) {
+    // Get the first mentioned member
+    member = message.mentions.members.first();
+  } else {
+    // Find the member by username
+    member = message.guild.members.cache.find(member => member.user.username.toLowerCase() === query);
+    // Find the member by ID
+    if (!member) {
+      member = message.guild.members.cache.find(member => member.user.id === query);
+    }
+  }
+
+  if (!member) {
+    return message.reply(`Sorry, I couldn't find a member with the query "${query}" in this server.`);
+  }
+
+  const roles = member.roles.cache.map(role => `<@&${role.id}>`).join(', ');
+  const embed = new Discord.MessageEmbed()
+    .setColor('#0099ff')
+    .setTitle(`User Information for ${member.user.username}`)
+    .setDescription(`Here is some information about ${member.user.username}.`)
+    .setThumbnail(member.user.displayAvatarURL())
+    .addField('Username', member.user.username)
+    .addField('UserID', member.user.id)
+    .addField('Account Created', member.user.createdAt.toDateString())
+    .addField('Joined Server', member.joinedAt.toDateString())
+    .addField('Roles', `> ${roles}`);
+  message.channel.send(embed);
+}
+
+if (message.content.toLowerCase().startsWith('-dm')) {
+  const args = message.content.slice('-dm'.length).trim().split(/ +/);
+  if (args.length < 2) {
+    return message.reply('please provide a user and a message to send.');
+  }
+
+  let user;
+  const mention = message.mentions.users.first(); // Check if the first argument is a mention of a user
+  if (mention) {
+    user = message.guild.members.cache.get(mention.id); // Find the user by their ID
+  } else {
+    user = message.guild.members.cache.find(
+      (member) => member.user.username.toLowerCase().startsWith(args[0].toLowerCase())
+    ); // Find the user by their username
+  }
+
+  if (!user) {
+    return message.reply('could not find that user in this server.');
+  }
+
+  const content = args.slice(1).join(' ');
+  const embed = new Discord.MessageEmbed()
+    .setColor('RANDOM')
+    .setTitle(`Anonymous Message`)
+    .setDescription(args.slice(1).join(' '))
+    .setTimestamp();
+  
+  try {
+    await user.user.send(embed);
+    message.channel.send(`Successfully sent the message anonymously.`);
+  } catch (error) {
+    console.error(error);
+    message.reply('an error occurred while sending the message.');
+  }
+
+  message.delete().catch(console.error);
+}
+
+  
+  if (message.content.toLowerCase().startsWith('-warn')) {
+      const args = message.content.slice('-warn'.length).trim().split(/ +/);
+    if (!message.member.hasPermission('MANAGE_MESSAGES')) {
+      return message.reply('You do not have permission to use this command');
+    }
+    const user = message.mentions.users.first();
+    if (!user) {
+      return message.reply('You must mention a user to warn');
+    }
+    const reason = args.slice(1).join(' ') || 'No reason specified';
+    const embed = new Discord.MessageEmbed()
+      .setTitle('You have been warned')
+      .setDescription(`Reason: ${reason}`)
+      .setColor('RED')
+      .setTimestamp();
+    try {
+      await user.send(embed);
+    } catch (err) {
+ console.warn(`Unable to send DM to ${user.tag}: ${err}`);
+      message.channel.send(`Warned ${user.tag} for ${reason}, but unable to DM them.`);
+    }
+    message.channel.send(`Warned ${user.tag} for ${reason}`);
+  }
+  
+  if (message.content.toLowerCase().startsWith('-ban')) {
+       if (!message.member.hasPermission('BAN_MEMBERS')) {
+      message.reply('You don\'t have permission to use this command!');
+      return;
+    }
+
+    const userToBan = message.mentions.members.first();
+    if (!userToBan) {
+      message.reply('Please mention someone to ban!');
+      return;
+    }
+
+    userToBan.ban({reason: 'Breaking the rules'}).then(user => {
+      message.reply(`, ${userToBan} has been banned for breaking the rules!`);
+      user.send(`You have been banned from ${message.guild.name} for breaking the server rules.`);
+    }).catch(err => {
+      message.reply(`An error occurred while trying to ban ${userToBan.tag}: ${err}`);
+    });
+  }
+    if (message.content.toLowerCase().startsWith('-say')) {
+    const messageToRepeat = message.content.substring(4);
+    message.channel.send(`${messageToRepeat} 
+    
+*— ${message.author.toString()}*`);
+     message.delete()
+  }
+  if (message.content.toLowerCase().startsWith('-devmessage1')) {
+  const messageToRepeat = message.content.substring(12);
+  message.channel.send(`${messageToRepeat}`);
+   message.delete()
+  }
+  
+if (message.content.toLowerCase() === '-bibletoday') {
+  axios.get('https://www.biblegateway.com/votd/get/?format=json')
+    .then(response => {
+      const verse = he.decode(response.data.votd.text.replace(/(<([^>]+)>)/gi, ""));
+      const reference = response.data.votd.reference;
+      const embed = new Discord.MessageEmbed()
+        .setColor("RANDOM")
+        .setTitle('Bible Verse of the Day')
+        .setDescription(verse)
+        .setFooter(reference)
+      message.channel.send(embed);
+    })
+    .catch(error => {
+      console.log(error);
+      message.channel.send('Unable to retrieve a verse at this time. Please try again later.');
+    });
+}
+
+
+  if (message.content === '-quote') {
+    try {
+      const response = await axios.get('https://zenquotes.io/api/random');
+      const quote = response.data[0].q;
+      const author = response.data[0].a;
+
+      const embed = new Discord.MessageEmbed()
+        .setColor('RANDOM')
+        .setDescription(`"${quote}"`)
+        .setFooter(`- ${author}`);
+
+      message.channel.send(embed);
+    } catch (error) {
+      console.error('Error fetching quote:', error);
+      message.channel.send('Oops! Something went wrong while fetching the quote.');
+    }
+  } else if (message.content.toLowerCase() === "-meme") {
+        try {
+            const response = await fetch("https://www.reddit.com/r/memes/random.json");
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Network response was not ok: ${response.status} ${response.statusText} - ${errorText}`);
+            }
+            const data = await response.json();
+            if (!data[0] || !data[0].data || !data[0].data.children[0]) {
+                throw new Error('Unexpected API response structure');
+            }
+            const meme = data[0].data.children[0].data;
+
+            const embed = new Discord.MessageEmbed()
+                .setTitle(meme.title)
+                .setURL(`https://www.reddit.com${meme.permalink}`)
+                .setImage(meme.url)
+                .setColor("RANDOM")
+                .setFooter(`👍 ${meme.ups} | 💬 ${meme.num_comments}`);
+
+            // Send the embed to the channel
+            message.channel.send(embed);
+        } catch (error) {
+            console.error('Error fetching meme:', error);
+            message.channel.send('Failed to fetch a meme, please try again later.');
+        }
+    }
+
+
+
+  
+
+
+  if (message.content === '-news') {
+    const apiKey = '59002a36970b49bcb9b073878ab360b6'
+    try {
+      const response = await fetch(`https://newsapi.org/v2/top-headlines?language=en&apiKey=${apiKey}`);
+      const data = await response.json();
+
+      // Select a random article from the fetched data
+      const randomIndex = Math.floor(Math.random() * data.articles.length);
+      const randomArticle = data.articles[randomIndex];
+
+      const embed = new Discord.MessageEmbed()
+        .setColor('#ff0000')
+        .setTitle(randomArticle.title)
+        .setDescription(randomArticle.description)
+        .setURL(randomArticle.url)
+        .setImage(randomArticle.urlToImage);
+
+      // Send the embed to the Discord channel
+      message.channel.send(embed);
+    } catch (error) {
+      console.error('Error fetching news:', error);
+      message.channel.send('Oops! Something went wrong while fetching the news.');
+    }
+  }
+
+
+
+if (message.content.toLowerCase() === '-animal duck') {
+    try {
+      const response = await fetch('https://api.amymals.xyz/animal/duck');
+      const url = await response.json();
+
+      const embed = new Discord.MessageEmbed()
+        .setColor('#00FF00')
+        .setTitle('What the Duck!')
+        .setDescription(url.description)
+        .setImage(url.image)
+        .setFooter(url.fact);
+
+      message.channel.send(embed);
+    } catch (error) {
+      console.error(error);
+      message.channel.send('Failed to fetch a duck picture. Please try again later.');
+    }
+  }  else if (message.content.toLowerCase() === '-animal lion') {
+    try {
+      const response = await fetch('https://api.amymals.xyz/animal/lion');
+      const url = await response.json();
+
+      const embed = new Discord.MessageEmbed()
+        .setColor('#00FF00')
+        .setTitle('Roary Lion')
+        .setDescription(url.description)
+        .setImage(url.image)
+        .setFooter(url.fact);
+
+      message.channel.send(embed);
+    } catch (error) {
+      console.error(error);
+      message.channel.send('Failed to fetch a lion picture. Please try again later.');
+    }
+  }  else if (message.content.toLowerCase() === '-animal giraffe') {
+    try {
+      const response = await fetch('https://api.amymals.xyz/animal/giraffe');
+      const url = await response.json();
+
+      const embed = new Discord.MessageEmbed()
+        .setColor('#00FF00')
+        .setTitle('Giraffe 🦒')
+        .setDescription(url.description)
+        .setImage(url.image)
+        .setFooter(url.fact);
+
+      message.channel.send(embed);
+    } catch (error) {
+      console.error(error);
+      message.channel.send('Failed to fetch a giraffe picture. Please try again later.');
+    }
+  } else if (message.content.toLowerCase() === '-animal dog') {
+    try {
+      const response = await fetch('https://api.amymals.xyz/animal/dog');
+      const url = await response.json();
+
+      const embed = new Discord.MessageEmbed()
+        .setColor('#00FF00')
+        .setTitle('AWW look at this Dawg!')
+        .setDescription(url.description)
+        .setImage(url.image)
+        .setFooter(url.fact);
+
+      message.channel.send(embed);
+    } catch (error) {
+      console.error(error);
+      message.channel.send('Failed to fetch a dog picture. Please try again later.');
+    }
+  } else if (message.content.toLowerCase() === '-horse') {
+    try {
+      const response = await fetch('https://api.amymals.xyz/animal/horse');
+      const url = await response.json();
+
+      const embed = new Discord.MessageEmbed()
+        .setColor('#00FF00')
+        .setTitle('Adorable horse')
+        .setDescription(url.description)
+        .setImage(url.image)
+        .setFooter(url.fact);
+
+      message.channel.send(embed);
+    } catch (error) {
+      console.error(error);
+      message.channel.send('Failed to fetch a horse picture. Please try again later.');
+    }
+  }  else if (message.content.toLowerCase() === '-animal bird') {
+    try {
+      const response = await fetch('https://api.amymals.xyz/animal/bird');
+      const url = await response.json();
+
+      const embed = new Discord.MessageEmbed()
+        .setColor('#00FF00')
+        .setTitle('Birds Are Real.')
+        .setDescription(url.description)
+        .setImage(url.image)
+        .setFooter(url.fact);
+
+      message.channel.send(embed);
+    } catch (error) {
+      console.error(error);
+      message.channel.send('Failed to fetch a bird picture. Please try again later.');
+    }
+  }  else if (message.content.toLowerCase() === '-animal cat') {
+    try {
+      const response = await fetch('https://api.amymals.xyz/animal/cat');
+      const url = await response.json();
+
+      const embed = new Discord.MessageEmbed()
+        .setColor('#00FF00')
+        .setTitle('Cat Gaming')
+        .setDescription(url.description)
+        .setImage(url.image)
+        .setFooter(url.fact);
+
+      message.channel.send(embed);
+    } catch (error) {
+      console.error(error);
+      message.channel.send('Failed to fetch a cat picture. Please try again later.');
+    }
+  } else if (message.content.toLowerCase() === '-animal pig') {
+    try {
+      const response = await fetch('https://api.amymals.xyz/animal/pig');
+      const url = await response.json();
+
+      const embed = new Discord.MessageEmbed()
+        .setColor('#00FF00')
+        .setTitle('Oinky 🐷 Pig')
+        .setDescription(url.description)
+        .setImage(url.image)
+        .setFooter(url.fact);
+
+      message.channel.send(embed);
+    } catch (error) {
+      console.error(error);
+      message.channel.send('Failed to fetch a Pig Pic. Please try again later.');
+    }
+  } else if (message.content.toLowerCase() === '-animal panda') {
+    try {
+      const response = await fetch('https://api.amymals.xyz/animal/panda');
+      const url = await response.json();
+
+      const embed = new Discord.MessageEmbed()
+        .setColor('#00FF00')
+        .setTitle('Awww, check out this panda!')
+        .setDescription(url.description)
+        .setImage(url.image)
+        .setFooter(url.fact);
+
+      message.channel.send(embed);
+    } catch (error) {
+      console.error(error);
+      message.channel.send('Failed to fetch a Panda Pic. Please try again later.');
+    }
+  } 
+  
+
+
+const reminders = [];
+if (message.content.toLowerCase().startsWith('-reminder')) {
+  const args = message.content.slice('-reminder'.length).trim().split(/ +/);
+  const time = args[0];
+  const reminder = args.slice(2).join(' ');
+  const channel = message.mentions.channels.first();
+  
+  if (!time || !reminder || !channel) {
+    return message.reply(`Please provide a valid time, channel, and reminder. Usage syntax: \`-reminder [time] [#channel] [reminder]\``);
+  }
+  const validUnits = ['s', 'm', 'h', 'd'];
+  const unit = time.slice(-1);
+  const duration = parseInt(time.slice(0, -1));
+
+  if (isNaN(duration) || !validUnits.includes(unit)) {
+    return message.reply(`Please provide a valid time. \`Usage: reminder [time] [#channel] [reminder]\``);
+  }
+  const timeInMs = duration * (() => {
+    switch(unit) {
+      case 's': return 1000;
+      case 'm': return 1000 * 60;
+      case 'h': return 1000 * 60 * 60;
+      case 'd': return 1000 * 60 * 60 * 24;
+    }
+  })();
+  const reminderDate = new Date(Date.now() + timeInMs);
+  reminders.push({
+    time: reminderDate,
+    reminder: reminder,
+    channel: channel,
+    user: message.author.tag,
+  });
+  
+  message.reply(`You will be reminded on \`${reminderDate.toLocaleString()}\` to \`${reminder}\` in \`${channel}\`.`);
+
+  setTimeout(() => {
+    channel.send(`${message.author}, time's up! you asked to be reminded to ${reminder}.`);
+  }, timeInMs);
+}
+
+
+if (message.content.toLowerCase() === '-randomword') {
+  try {
+    const response = await fetch(`https://api.wordnik.com/v4/words.json/randomWord?api_key=lcwzt69rcg3xdo3lqm8ew5439zhm89pbtigty4os863b6d2hy`);
+    const data = await response.json();
+    const word = he.decode(data.word);
+    const definitionResponse = await fetch(`https://api.wordnik.com/v4/word.json/${word}/definitions?limit=1&includeRelated=false&sourceDictionaries=all&useCanonical=true&api_key=lcwzt69rcg3xdo3lqm8ew5439zhm89pbtigty4os863b6d2hy`);
+    const definitionData = await definitionResponse.json();
+    const definition = definitionData[0].text.replace(/<\/?xref>/g, '');
+    const decodedDefinition = he.decode(definition); // Decode HTML entities in definition text
+    const embed = new Discord.MessageEmbed()
+      .setColor('RANDOM')
+      .setTitle(word)
+      .setDescription(decodedDefinition);
+    message.channel.send(embed);
+  } catch (error) {
+    console.error(error);
+    message.channel.send('Sorry, there was an error retrieving a random word and its definition.');
+  }
+}
+
+
+  if (message.content.toLowerCase() === '-fact') {
+    const searchMessage = await message.channel.send('Searching for a fact...');
+
+    const response = await fetch('https://uselessfacts.jsph.pl/random.json');
+    const factData = await response.json();
+
+    const factEmbed = new Discord.MessageEmbed()
+      .setColor('#0099ff')
+      .setTitle('Random Fact:')
+      .setDescription(`> ${factData.text}`)
+      .setTimestamp();
+
+    message.channel.send(factEmbed);
+
+    searchMessage.delete();
+  }
+  
+    if (message.content.toLowerCase() === '-catechism') {
+const catechismQuotes = [
+  "The desire for God is written in the human heart, because man is created by God and for God.",
+  "The dignity of the human person is rooted in his creation in the image and likeness of God.",
+  "The Sabbath was made for man, not man for the Sabbath.",
+  "The human person participates in the light and power of the divine Spirit.",
+  "The Holy Spirit is the interior Master of Christian prayer.",
+  "The Eucharist is the source and summit of the Christian life.",
+  "The Church is apostolic because she is founded on the apostles, in three ways.",
+  "Sacramental grace is the grace of the Holy Spirit, given by Christ and proper to each sacrament.",
+  "The grace of Christ is the gratuitous gift that God makes to us of his own life.",
+  "The moral law is the work of divine wisdom and leads man to the promised blessedness.",
+  "The whole Church is apostolic, in that she remains, through the successors of St. Peter and the other apostles, in communion of faith and life with her origin.",
+  "The Church is catholic, in that she proclaims the fullness of the faith.",
+  "The Church is holy, because she is the Body of Christ, the Temple of the Holy Spirit, and the People of God.",
+  "The Church is one, because of her source: the unity of the Trinity, and of her founder: Jesus Christ.",
+  "Prayer is a vital necessity of the Christian life.",
+  "The moral law finds its fullness and its unity in Christ.",
+  "Christ invites his disciples to follow him by taking up their cross in their turn.",
+  "The first commandment requires us to nourish and protect our faith with prudence and vigilance.",
+  "The sacraments are efficacious signs of grace, instituted by Christ and entrusted to the Church.",
+  "The precepts of the Church are set in the context of a moral life bound to and nourished by liturgical life.",
+  "The Lord's Prayer is truly the summary of the whole Gospel.",
+  "The Church is a communion of saints: this expression refers first to the 'holy things' (sancta), above all the Eucharist, by which 'the unity of believers, who form one body in Christ, is both represented and brought about'.",
+  "The beatitudes reveal the goal of human existence, the ultimate end of human acts: God calls us to his own beatitude."
+];
+    const quote = catechismQuotes[Math.floor(Math.random() * catechismQuotes.length)];
+    message.channel.send(quote);
+  }
+    if (message.content.toLowerCase() === '-random') {
+    try {
+      const response = await fetch('https://www.reddit.com/r/random.json');
+      if (!response.ok) {
+        throw new Error(`Failed to fetch a random post from Reddit. Status code: ${response.status}`);
+      }
+      const data = await response.json();
+      const post = data.data.children[Math.floor(Math.random() * data.data.children.length)].data;
+
+      const embed = new Discord.MessageEmbed()
+        .setTitle(post.title)
+        .setURL(`https://www.reddit.com${post.permalink}`)
+        .setDescription(post.selftext)
+        .setImage(post.url)
+        .setColor("RANDOM")
+        .setFooter(`👍 ${post.ups} | 💬 ${post.num_comments}`);
+
+      message.channel.send(embed);
+    } catch (error) {
+      console.error(error);
+      message.channel.send('An error occurred while fetching a random post from Reddit');
+    }
+  }
+  
+  if (message.content.toLowerCase() === '-trivia') {
+    try {
+      const response = await axios.get('https://opentdb.com/api.php?amount=1');
+      const data = response.data.results[0];
+    const category = data.category;
+      const question = he.decode(data.question);
+      const correctAnswer = he.decode(data.correct_answer);
+      const incorrectAnswers = data.incorrect_answers.map((answer) => he.decode(answer));
+      const answers = [...incorrectAnswers, correctAnswer].sort();
+      const answerChoices = answers.map((answer, index) => `${index + 1}. ${answer}`).join('\n');
+      const embed = new Discord.MessageEmbed()
+        .setColor("RANDOM")
+        .setTitle(question)
+        .addField('Answer Choices:', answerChoices)
+        .addField('Category', category)
+        .addField('Answer', `||The correct answer is *${correctAnswer}*||`);
+      message.channel.send(embed);
+    } catch (error) {
+      console.error(error);
+      message.channel.send('Failed to fetch a trivia question.');
+    }
+  }
+  
+
+
+    if (message.content.toLowerCase() === '-serverinfo') {
+    // Create a message with general server information
+    const serverInfoMessage = new Discord.MessageEmbed()
+      .setTitle(`Server Information for ${message.guild.name}`)
+      .setColor('BLUE')
+      .addField('Owner', message.guild.owner.user.tag, true)
+      .addField('Region', message.guild.region.toUpperCase(), true)
+      .addField('Members', message.guild.memberCount, true)
+      .addField('Channels', message.guild.channels.cache.size, true)
+      .addField('Roles', message.guild.roles.cache.size, true)
+      .setThumbnail(message.guild.iconURL({ dynamic: true }));
+
+    message.channel.send(serverInfoMessage);
+  }
+
+  if (message.content.toLowerCase() === '-joke') {
+    try {
+      const response = await axios.get('https://sv443.net/jokeapi/v2/joke/Any');
+      const joke = response.data;
+
+      let jokeText = '';
+      if (joke.type === 'single') {
+        jokeText = joke.joke;
+      } else if (joke.type === 'twopart') {
+        jokeText = `${joke.setup}\n${joke.delivery}`;
+      }
+
+      const embed = new Discord.MessageEmbed()
+        .setColor('#ff9900')
+        .setTitle('Random Joke')
+        .setDescription(jokeText)
+        .setFooter('🤣😅😆😂');
+
+      message.channel.send(embed);
+    } catch (error) {
+      console.error('Error fetching joke:', error);
+      message.channel.send('Oops! Something went wrong while fetching the joke.');
+    }
+  }
+
+
+ // NINJA API COMMANDS
+  
+      const apiKey = 'kUbHc84s5XrO12w/Kk7eCg==4X74mFYTQRjACVwB'
+  if (message.content.startsWith('-history')) {
+    try {
+      const args = message.content.split(' ');
+      const textQuery = args.slice(1).join(' ');
+
+      if (!textQuery) {
+        message.channel.send('Please include at least one parameter. Example: `-history roman empire`');
+        return;
+      }
+
+
+      const apiUrl = `https://api.api-ninjas.com/v1/historicalevents?text=${encodeURIComponent(textQuery)}`;
+
+      const headers = {
+        'X-Api-Key': apiKey,
+      };
+      request.get({
+        url: apiUrl,
+        headers: headers,
+      }, function(error, response, body) {
+        if (error) {
+          console.error('Request failed:', error);
+          message.channel.send('Oops! Something went wrong while fetching the historical event.');
+        } else if (response.statusCode !== 200) {
+          console.error('Error:', response.statusCode, body.toString('utf8'));
+          message.channel.send('Oops! Something went wrong while fetching the historical event.');
+        } else {
+          const data = JSON.parse(body);
+          if (data.length > 0) {
+            const event = data[0];
+            const embed = new Discord.MessageEmbed()
+              .setColor('RANDOM')
+              .setTitle('Historical Event')
+              .addField('Year', event.year)
+              .addField('Month', event.month)
+              .addField('Day', event.day)
+              .addField('Event', event.event);
+            message.channel.send(embed);
+          } else {
+            message.channel.send('No historical events found.');
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching historical event:', error);
+      message.channel.send('Oops! Something went wrong while fetching the historical event.');
+    }
+  } else   if (message.content === '-bucketlist') {
+    try {
+      const apiUrl = 'https://api.api-ninjas.com/v1/bucketlist';
+
+      const headers = {
+        'X-Api-Key': apiKey,
+      };
+
+      request.get({
+        url: apiUrl,
+        headers: headers,
+      }, function(error, response, body) {
+        if (error) {
+          console.error('Request failed:', error);
+          message.channel.send('Oops! Something went wrong while fetching the bucket list item.');
+        } else if (response.statusCode !== 200) {
+          console.error('Error:', response.statusCode, body.toString('utf8'));
+          message.channel.send('Oops! Something went wrong while fetching the bucket list item.');
+        } else {
+          const data = JSON.parse(body);
+          const item = data.item;
+
+          const embed = new Discord.MessageEmbed()
+            .setColor('#RANDOM')
+            .setTitle('Bucket List Item')
+            .setDescription(item);
+          message.channel.send(embed);
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching bucket list item:', error);
+      message.channel.send('Oops! Something went wrong while fetching the bucket list item.');
+    }
+  } else if (message.content.startsWith('-inflation')) {
+    try {
+      const args = message.content.split(' ');
+      const countryQuery = args.slice(1).join(' ');
+      const apiUrl = `https://api.api-ninjas.com/v1/inflation?country=${encodeURIComponent(countryQuery)}`;
+
+      const headers = {
+        'X-Api-Key': apiKey,
+      };
+
+      request.get({
+        url: apiUrl,
+        headers: headers,
+      }, function(error, response, body) {
+        if (error) {
+          console.error('Request failed:', error);
+          message.channel.send('Oops! Something went wrong while fetching the inflation data.');
+        } else if (response.statusCode !== 200) {
+          console.error('Error:', response.statusCode, body.toString('utf8'));
+          message.channel.send('Oops! Something went wrong while fetching the inflation data.');
+        } else {
+          const data = JSON.parse(body);
+
+          if (Array.isArray(data) && data.length > 0) {
+            const inflationData = data[0];
+            const embed = new Discord.MessageEmbed()
+              .setColor('RANDOM')
+              .setTitle('Inflation Data')
+              .addField('Country', inflationData.country)
+              .addField('Type', inflationData.type)
+              .addField('Period', inflationData.period)
+              .addField('Monthly Rate (%)', inflationData.monthly_rate_pct)
+              .addField('Yearly Rate (%)', inflationData.yearly_rate_pct);
+
+            message.channel.send(embed);
+          } else {
+            message.channel.send('No inflation data found for the specified country.');
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching inflation data:', error);
+      message.channel.send('Oops! Something went wrong while fetching the inflation data.');
+    }
+  } else if (message.content.toLowerCase().startsWith('-rhyme')) {
+    try {
+      const args = message.content.split(' ');
+      const wordQuery = args.slice(1).join(' ');
+
+      if (!wordQuery) {
+        message.channel.send('Please provide a word to find rhymes for. Example: `-rhyme lottery`');
+        return;
+      }
+
+      const apiUrl = `https://api.api-ninjas.com/v1/rhyme?word=${encodeURIComponent(wordQuery)}`;
+
+      const headers = {
+        'X-Api-Key': apiKey,
+      };
+
+      request.get({
+        url: apiUrl,
+        headers: headers,
+      }, function(error, response, body) {
+        if (error) {
+          console.error('Request failed:', error);
+          message.channel.send('Oops! Something went wrong while fetching the rhyming words.');
+        } else if (response.statusCode !== 200) {
+          console.error('Error:', response.statusCode, body.toString('utf8'));
+          message.channel.send('Oops! Something went wrong while fetching the rhyming words.');
+        } else {
+          const data = JSON.parse(body);
+
+          if (Array.isArray(data) && data.length > 0) {
+            const rhymingWords = data;
+
+            const embed = new Discord.MessageEmbed()
+              .setColor('RANDOM')
+              .setTitle(`Rhyming Words for "${wordQuery}"`)
+              .setDescription(rhymingWords.join('\n'));
+
+            message.channel.send(embed);
+          } else {
+            message.channel.send(`No rhyming words found for "${wordQuery}".`);
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching rhyming words:', error);
+      message.channel.send('Oops! Something went wrong while fetching the rhyming words.');
+    }
+  } else  if (message.content.startsWith('-imagetotext')) {
+    try {
+      if (message.attachments.size === 0) {
+        message.channel.send('You must attach an image along with the command. Run the command again.');
+        return;
+      }
+
+      const attachment = message.attachments.first();
+      const imageUrl = attachment.url;
+
+      const imagePath = './image.jpg';
+      const imageStream = fs.createWriteStream(imagePath);
+      request.get(imageUrl).pipe(imageStream);
+
+      imageStream.on('finish', async () => {
+        const apiUrl = 'https://api.api-ninjas.com/v1/imagetotext';
+
+        const headers = {
+          'X-Api-Key': apiKey,
+        };
+
+        const formData = {
+          image: fs.createReadStream(imagePath),
+        };
+
+        request.post({
+          url: apiUrl,
+          headers: headers,
+          formData: formData,
+        }, function(error, response, body) {
+          if (error) {
+            console.error('Request failed:', error);
+            message.channel.send('Oops! Something went wrong while extracting text from the image.');
+          } else if (response.statusCode !== 200) {
+            console.error('Error:', response.statusCode, body.toString('utf8'));
+            message.channel.send('Oops! Something went wrong while extracting text from the image.');
+          } else {
+            const data = JSON.parse(body);
+            const extractedText = data.map(item => item.text).join(' ');
+            const embed = new Discord.MessageEmbed()
+              .setColor('RANDOM')
+              .setTitle('Extracted Text from Image')
+              .setDescription(extractedText);
+            message.channel.send(embed);
+          }
+
+          fs.unlinkSync(imagePath);
+        });
+      });
+
+      imageStream.on('error', (err) => {
+        console.error('Error downloading image:', err);
+        message.channel.send('Oops! Something went wrong while processing the image.');
+      });
+    } catch (error) {
+      console.error('Error extracting text from image:', error);
+      message.channel.send('Oops! Something went wrong while extracting text from the image.');
+    }
+  }  else   if (message.content.startsWith('-recipe')) {
+    const query = message.content.slice('-recipe'.length).trim();
+    if (!query) {
+      message.channel.send('You must provide a recipe query. Usage: `-recipe <query>`');
+      return;
+    }
+
+    // Construct the API URL for recipe search
+    const apiUrl = `https://api.api-ninjas.com/v1/recipe?query=${encodeURIComponent(query)}`;
+
+    // Set up the request headers
+    const headers = {
+      'X-Api-Key': apiKey,
+    };
+
+    // Make the API request
+    request.get({
+      url: apiUrl,
+      headers: headers,
+    }, function(error, response, body) {
+      if (error) {
+        console.error('Request failed:', error);
+        message.channel.send('Oops! Something went wrong while fetching the recipe.');
+      } else if (response.statusCode !== 200) {
+        console.error('Error:', response.statusCode, body.toString('utf8'));
+        message.channel.send('Oops! Something went wrong while fetching the recipe.');
+      } else {
+        const data = JSON.parse(body);
+
+        if (data.length === 0) {
+          message.channel.send('No recipes found for the provided query.');
+          return;
+        }
+
+        const recipe = data[0]; // Assuming you want to send the first recipe in the list
+
+        // Truncate the fields if they exceed Discord's embed limitations
+        const truncatedIngredients = recipe.ingredients.slice(0, 1020) + '...';
+        const truncatedInstructions = recipe.instructions.slice(0, 1020) + '...';
+
+        // Create an embed to send the recipe details
+        const embed = new Discord.MessageEmbed()
+          .setColor('#00cc00')
+          .setTitle(recipe.title)
+          .addField('Ingredients', truncatedIngredients)
+          .addField('Servings', recipe.servings)
+          .addField('Instructions', truncatedInstructions);
+
+        // Send the embed to the channel
+        message.channel.send(embed);
+      }
+    });
+  }
+
+
+
+
+  // CHANGING UP
+
+  // REDDIT commands
+  
+    if (message.content.toLowerCase().startsWith('-copypasta')) {
+    const response = await fetch('https://www.reddit.com/r/copypasta/random.json');
+    const json = await response.json();
+    const data = json[0].data.children[0].data;
+
+    const embed = new Discord.MessageEmbed()
+      .setColor('RANDOM')
+      .setTitle(data.title)
+      .setDescription(data.selftext)
+      .setURL(`https://www.reddit.com${data.permalink}`)
+      .setFooter(`👍 ${data.ups} | 💬 ${data.num_comments}`)
+    message.channel.send(embed);
+  }
+
+      if (message.content.startsWith('-mapmeme')) {
+    const response = await fetch('https://www.reddit.com/r/mapporn/random.json');
+    const json = await response.json();
+    const data = json[0].data.children[0].data;
+
+    const embed = new Discord.MessageEmbed()
+      .setColor('RANDOM')
+      .setTitle(data.title)
+      .setDescription(data.selftext)
+      .setImage(data.url)
+      .setURL(`https://www.reddit.com${data.permalink}`)
+      .setFooter(`👍 ${data.ups} | 💬 ${data.num_comments}`)
+    message.channel.send(embed);
+  }
+
+
+      if(message.content.toLowerCase().startsWith("-givetrait") || message.content.startsWith("-Givetrait")|| message.content.startsWith("-Traitme")|| message.content.startsWith("-traitme")) {
+    let nicknames = ["dumb*ss", "noob gamer", "pro gamer", "lord", "good guy", "cool guy", "undefined personality {Error Code 404}", "weeb", "good boi", "weirdo", "bad boi", "nerd", "introvert", "smart guy", "loser", "normie", "ambivert", "extrovert", "chucklehead","shy dude", "clingy dude", "pick me girl", "popular person", "tiktoker with 0 followers RIP", "famous tiktoker", "instagram user", "youtuber with 0 subs RIP", "youtuber with 1 billion subs (lol gfy)", "billionaire lol", "clickbaiter LOL", "hacker", "scammer", "underrated youtuber/content creator", "overrated dude", "annoying dude", "dudeman","memer", "meme creator lol", "urbandictionary guy", "karen","nobo","Gus","comedian","unfunny comedian","unpopular actor"]
+    message.channel.send(`you are a ${nicknames[Math.floor(Math.random() * nicknames.length)]}`)
+  }
+
+  
+if (message.content.toLowerCase().startsWith('-weather')) {
+  let args = message.content.split(' ');
+  if (args.length < 2) {
+    message.channel.send('Please provide the city name.');
+    return;
+  }
+  let city = args.slice(1).join(' ');
+  weather.setAPPID('3c4048f209bab356f911291f74507907');
+  weather.setLang('en');
+  weather.setUnits('metric');
+  weather.setCity(city);
+  weather.getAllWeather(function(err, JSONObj) {
+    if (err) {
+      message.channel.send(`${err}`);
+    } else {
+      let temp = JSONObj.main.temp;
+      let sky = JSONObj.weather[0].description;
+
+      // Capitalize the first letter of every word in the city name
+      city = city.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+
+      let emoji = '';
+      if (sky.includes('rain')) {
+        emoji = '🌧️';
+      } else if (sky.includes('cloud')) {
+        emoji = '☁️';
+      } else if (sky.includes('snow')) {
+        emoji = '🌨️';
+      } else if (sky.includes('thunder')) {
+        emoji = '⛈️';
+      } else if (sky.includes('few')) {
+        emoji = '🌤️';
+      } else if (sky.includes('broken') || sky.includes('scattered')) {
+        emoji = '⛅️';
+      } else if (sky.includes('mist') || sky.includes('fog')) {
+        emoji = '🌫️';
+      } else if (sky.includes('smoke')) {
+        emoji = '💨';
+      } else {
+        emoji = '☀️';
+      }
+
+      const weatherEmbed = new Discord.MessageEmbed()
+        .setColor('#0099ff')
+        .setTitle(`Weather in ${city}`)
+        .setThumbnail('https://cdn-icons-png.flaticon.com/512/4052/4052984.png')
+        .addField('Temperature', `${temp}°C`, true)
+        .addField('Conditions', `${emoji} ${sky}`, true)
+        .setTimestamp();
+
+      message.channel.send(weatherEmbed).catch((err) => {
+        console.error('Failed to send weather embed:', err);
+      });
+    }
+  });
+}
+
+
+if (message.content.toLowerCase().startsWith('-forecast')) {
+  let args = message.content.split(' ');
+  if (args.length < 2) {
+    message.channel.send('Please provide the city name.');
+    return;
+  }
+  let city = args.slice(1).join(' ');
+  weather.setAPPID('3c4048f209bab356f911291f74507907');
+  weather.setLang('en');
+  weather.setUnits('metric');
+  weather.setCity(city);
+  weather.getWeatherForecast(function(err, JSONObj) {
+    if (err) {
+      message.channel.send(`${err}`);
+    } else {
+      let forecast = JSONObj.list.filter((day, index) => index % 8 === 0); 
+      city = city.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+
+      const weatherEmbed = new Discord.MessageEmbed()
+        .setColor('#0099ff')
+        .setTitle(`7-Day Weather Forecast for ${city}`)
+        .setThumbnail('https://cdn-icons-png.flaticon.com/512/4052/4052984.png')
+        .setTimestamp();
+
+      forecast.forEach((day) => {
+        let date = new Date(day.dt * 1000);
+        let tempHigh = day.main.temp_max;
+        let tempLow = day.main.temp_min;
+        let sky = day.weather[0].description;
+
+        let emoji = '';
+        if (sky.includes('rain')) {
+          emoji = '🌧️';
+        } else if (sky.includes('cloud')) {
+          emoji = '☁️';
+        } else if (sky.includes('snow')) {
+          emoji = '🌨️';
+        } else if (sky.includes('thunder')) {
+          emoji = '⛈️';
+        } else if (sky.includes('few')) {
+          emoji = '🌤️';
+        } else if (sky.includes('broken')) {
+          emoji = '⛅️';
+        } else if (sky.includes('scattered')) {
+          emoji = '🌤️';
+        } else if (sky.includes('mist')) {
+          emoji = '🌫️';
+        } else if (sky.includes('fog')) {
+          emoji = '🌫️';
+        } else {
+          emoji = '☀️';
+        }
+
+        let temperature = tempHigh !== tempLow ? `${tempHigh}°C / ${tempLow}°C` : `${tempHigh}°C`;
+
+        weatherEmbed.addField(
+          `${date.toDateString()}`,
+          `${emoji} ${temperature}\n**${sky}**`,
+          true
+        );
+      });
+
+      message.channel.send(weatherEmbed);
+    }
+  });
+}
+
+
+
+
+if (message.content.toLowerCase().startsWith('-define')) {
+  const args = message.content.slice('-define'.length).trim().split(/ +/);
+  const word = args.join(' ');
+  try {
+    const response = await fetch(`https://www.dictionaryapi.com/api/v3/references/collegiate/json/${word}?key=c77d705d-1d6f-4d29-a823-21dcc5c5940e`);
+    const data = await response.json();
+    if (data.length === 0) {
+      message.channel.send(`Sorry, I couldn't find a definition for the word "${word}".`);
+    } else {
+      const definition = data[0].shortdef ? he.decode(String(data[0].shortdef[0])) : 'N/A';
+      const example = data[0].def && data[0].def[0].sseq && data[0].def[0].sseq[0][0] && data[0].def[0].sseq[0][0][1] && data[0].def[0].sseq[0][0][1].dt && data[0].def[0].sseq[0][0][1].dt[1] ? he.decode(String(data[0].def[0].sseq[0][0][1].dt[1][1])) : 'N/A';
+      const synonyms = data[0].meta && data[0].meta.syns && data[0].meta.syns.length > 0 ? data[0].meta.syns[0].map(synonym => he.decode(String(synonym))).join(', ') : 'N/A';
+      const embed = new Discord.MessageEmbed()
+        .setColor('#0099ff')
+        .setTitle(word)
+        .setDescription(definition)
+        .addField('Example', example)
+        .addField('Synonyms', synonyms);
+      message.channel.send(embed);
+    }
+  } catch (error) {
+    console.error(error);
+    message.channel.send(`Sorry, there was an error retrieving the definition for "${word}".`);
+  }
+}
+
+
+
+  
+else if (message.content.toLowerCase() === '-advice') {
+    try {
+      const response = await axios.get('https://api.adviceslip.com/advice');
+      const advice = response.data.slip.advice;
+      const embed = new Discord.MessageEmbed()
+        .setColor('RANDOM')
+        .setTitle('Useful Life Advice')
+        .setDescription(advice)
+        .setTimestamp();
+      message.channel.send(embed);
+    } catch (error) {
+      console.error('Error fetching advice:', error);
+      message.channel.send('Oops! Something went wrong while fetching the advice.');
+    }
+  }
+  
+
+  
+    if(message.content.toLowerCase().startsWith("-fortune") || message.content.toLowerCase().startsWith("-givefortune")) {
+    let fortunes = ["unemployed XD", "a doctor 👨‍⚕️", "a vet", "a YouTuber", "a teacher", "ricardo no.2", "bald 👨‍🦲 LMAO", "a clown 🤡", "the guy that FINALLY fixes McDonald's broken ice cream machine", "a laywer", "the CEO of a Tesla-like company", "the CEO of Tesla", "an athelete","SINGLE (no bitches?! jk)","married 💍 with your soulmate; good for you", "the biggest loser on Earth","literally a karen","a successful Memer", "the guy who hacked Roblox", "that web developer who REFUSES to touch grass", "the world's first trillionaire 💸 (bro, gfy)", "a psychologist","the one nerd who proves Einstein wrong 🤓","just that ordinary guy/girl ._. (what a sad life)","a wealthy peasant?!?!?! (wth)","???","a farmer 🧑‍🌾","a youtuber with 10 subs", "the next Elon Musk 😎", "the first astronaut who successfully lands on Mars 👨‍🚀","the first inhabitant of Kepler 69c (haha that name is funny)","the one guy that literally no one cares about","a loser","friendless","the same as what you are now","me","a hard worker","rich","Elon Musk no. 2","a Minecraft YouTuber","the next MrBeast","A rich person","a dentist","an orthodontist (nice!)","a university professor","a large philantrophist","a priest","Gus' best friend","employed","the CEO of OpenAI and develop TruthGPT so ChatGPT gets rid of that left-wing bullcrap","a communist","prime minister of Canada","president of DPRK (replacing Kim Jong Un or whoeverthehell runs the country now)","smarter than AI","an OpenAI employee","a Google employee","married, then divorced","MrBeast no. 2","smarter and wiser","lactose intolerant","allergic to milk (NOOOOOO)","a vegan","an activist","a lottery winner","a winner","a loser","no comment","a public speaker","cancelled on twitter"]
+    message.channel.send(`You will become ${fortunes[Math.floor(Math.random() * fortunes.length)]} when you grow up`)
+  }
+
+  
+ if (message.content.toLowerCase().startsWith('-poll')) {
+    const args = message.content.slice(6).split(',');
+    const title = args.shift();
+    const options = args;
+    const emojis = ['🇦', '🇧', '🇨', '🇩', '🇪', '🇫', '🇬', '🇭', '🇮', '🇯', '🇰', '🇱', '🇲', '🇳', '🇴', '🇵', '🇶', '🇷', '🇸', '🇹'];
+    const votes = new Map();
+    let totalVotes = 0;
+
+    if (options.length < 2) {
+      return message.reply('you must provide at least 2 options!');
+    }
+
+    const embed = new Discord.MessageEmbed()
+      .setTitle(`📊 ${title}`)
+      .setColor('RANDOM')
+      .setFooter('Poll created by ' + message.author.tag);
+
+    for (let i = 0; i < options.length && i < emojis.length; i++) {
+      embed.addField(`${emojis[i]} ${options[i]}`, '\u200B');
+      votes.set(emojis[i], 0);
+    }
+
+    let sentEmbed = null;
+
+    const updateResults = () => {
+      const totalVotes = Array.from(votes.values()).reduce((a, b) => a + b, 0);
+      if (totalVotes === 0) {
+        return;
+      }
+      const results = Array.from(votes.entries()).map(([emoji, voteCount], i) => {
+        const percent = ((voteCount / totalVotes) * 100).toFixed(0);
+        const bar = '█'.repeat(Math.round(percent / 10));
+        return `${emoji} ${options[i]}\n${bar} ${percent}% | (${voteCount})`;
+      });
+      embed.spliceFields(0, options.length);
+      for (let i = 0; i < options.length && i < results.length; i++) {
+        embed.addField(`${emojis[i]} ${options[i]}`, results[i].split('\n')[1]);
+      }
+      sentEmbed.edit(embed);
+    };
+
+    message.delete().catch(console.error);
+    message.channel.send(embed).then((embedMsg) => {
+      sentEmbed = embedMsg;
+      for (let i = 0; i < options.length && i < emojis.length; i++) {
+        sentEmbed.react(emojis[i]);
+      }
+
+      const filter = (reaction, user) => {
+        return emojis.includes(reaction.emoji.name) && user.id !== sentEmbed.author.id;
+      };
+
+      const collector = sentEmbed.createReactionCollector(filter, { dispose: true });
+
+      collector.on('collect', (reaction, user) => {
+        const emoji = reaction.emoji.name;
+        const voteCount = votes.get(emoji) + 1;
+        votes.set(emoji, voteCount);
+        totalVotes++;
+        updateResults();
+      });
+
+      collector.on('remove', (reaction, user) => {
+        const emoji = reaction.emoji.name;
+        if (!votes.has(emoji)) {
+          return;
+        }
+        const voteCount = votes.get(emoji) - 1;
+        if (voteCount < 0) {
+          return;
+        }
+        if (reaction.users.cache.has(message.author.id)) {
+          return;
+        }
+        votes.set(emoji, voteCount);
+        totalVotes--;
+        updateResults();
+      });
+    });
+  }
+});
+
+
+client.login(process.env.token)
