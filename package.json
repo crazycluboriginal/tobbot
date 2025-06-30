@@ -1,0 +1,88 @@
+{
+  "name": "reaper-2.0",
+  "version": "7.0.0-stable",
+  "description": "An Open Source discord bot with lots of features",
+  "main": "index.js",
+  "engines": {
+    "node": ">=16.6.0",
+    "npm": ">=7.20.0"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Tester",
+  "license": "ISC",
+  "dependencies": {
+    "@discord-player/downloader": "^3.0.1",
+    "@discord-player/extractor": "^7.1.0",
+    "@iamtraction/google-translate": "^1.1.2",
+    "alexflipnote.js": "^2.5.0",
+    "ascii-table": "0.0.9",
+    "axios": "^1.4.0",
+    "chalk": "^4.1.1",
+    "common-tags": "^1.8.0",
+    "cpu-stat": "^2.0.1",
+    "dateformat": "^5.0.0",
+    "discord-emoji": "^2.0.0",
+    "discord-fetch-all": "^3.0.0",
+    "discord-gamecord": "^1.1.4",
+    "discord-player": "^6.4.0",
+    "discord-together": "^1.1.62",
+    "discord.js": "^14.11.0",
+    "djs-games": "^2.0.11",
+    "dotenv": "^16.6.1",
+    "enmap": "^5.8.7",
+    "express": "^4.18.2",
+    "ffmpeg": "^0.0.4",
+    "ffmpeg-static": "^4.4.0",
+    "figlet": "^1.5.2",
+    "flip-text": "^1.1.0",
+    "fs-nextra": "^0.5.1",
+    "giphy-api": "^2.0.1",
+    "google-play-scraper": "^8.0.2",
+    "got": "^11.5.1",
+    "he": "^1.2.0",
+    "imdb-api": "^4.2.0",
+    "jimp": "^0.22.10",
+    "mal-scraper": "^2.11.3",
+    "moment": "^2.29.4",
+    "moment-duration-format": "^2.3.2",
+    "mongoose": "^7.6.0",
+    "ms": "^2.1.2",
+    "nekos.life": "^2.0.7",
+    "node-cron": "^3.0.2",
+    "os": "^0.1.1",
+    "os-utils": "0.0.14",
+    "path": "^0.12.7",
+    "pretty-ms": "^7.0.0",
+    "random-puppy": "^1.1.0",
+    "run": "^1.4.0",
+    "simply-djs": "^4.0.0",
+    "stream": "^0.0.3",
+    "superagent": "^6.1.0",
+    "twemoji-parser": "^13.0.0",
+    "urban": "^0.3.2",
+    "util": "^0.12.3",
+    "ytdl-core": "^4.9.1",
+    "ytdl-core-discord": "^1.2.4"
+  },
+  "devDependencies": {
+    "node": "^16.10.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Simpleboy353/REAPER-2.0.git"
+  },
+  "keywords": [
+    "open-source",
+    "discord",
+    "discord-bot",
+    "discord.js",
+    "multi-purpose-bot"
+  ],
+  "bugs": {
+    "url": "https://github.com/Simpleboy353/REAPER-2.0/issues"
+  },
+  "homepage": "https://github.com/Simpleboy353/REAPER-2.0#readme"
+}

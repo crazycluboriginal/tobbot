@@ -1,0 +1,7 @@
+entrypoint = "index.js"
+run = "npm start"
+modules = ["nodejs-20:v8-20231002-bd4b10d"]
+
+[[ports]]
+localPort = 8080
+externalPort = 80
