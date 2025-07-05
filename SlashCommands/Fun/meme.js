@@ -22,33 +22,40 @@ module.exports = {
     ),
 
   run: async (client, interaction) => {
-    let replied = false;
     try {
+      // Always defer immediately to avoid 3-second timeout
       await interaction.deferReply();
-      replied = true;
 
       const category = interaction.options.getString('category') || 'meme';
-      const response = await fetch(`https://meme-api.com/gimme/${category}`);
-      if (!response.ok) throw new Error(`API error: ${response.status}`);
+      const response = await fetch(`https://meme-api.com/gimme/${category}`, { timeout: 3000 });
+
+      if (!response.ok) {
+        await interaction.editReply({ content: '❌ Could not fetch meme. Try again later.' });
+        return;
+      }
 
       const data = await response.json();
-      if (!data || !data.url) throw new Error('Invalid API response');
+      if (!data || !data.url) {
+        await interaction.editReply({ content: '❌ Invalid meme data received.' });
+        return;
+      }
 
       const embed = new EmbedBuilder()
-        .setTitle(data.title)
-        .setURL(data.postLink)
+        .setTitle(data.title || 'Meme')
+        .setURL(data.postLink || 'https://reddit.com/r/memes')
         .setImage(data.url)
         .setColor(Math.floor(Math.random() * 0xFFFFFF))
-        .setFooter({ text: `👍 ${data.ups}` });
+        .setFooter({ text: `👍 ${data.ups || 0}` });
 
       await interaction.editReply({ embeds: [embed] });
 
     } catch (error) {
       console.error('Meme command error:', error);
-      if (replied) {
-        await interaction.editReply({ content: 'Something went wrong while fetching your meme.' });
-      } else {
-        await interaction.reply({ content: 'Something went wrong while fetching your meme.', flags: 64 });
+      // Always safe: editReply only, since deferReply was guaranteed
+      try {
+        await interaction.editReply({ content: '❌ Something went wrong while fetching your meme.' });
+      } catch (e) {
+        console.error('Failed to edit reply:', e);
       }
     }
   },
