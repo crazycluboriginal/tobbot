@@ -21,19 +21,18 @@ module.exports = {
         )
     ),
 
-  run: async (client, interaction, args) => {
-    await interaction.deferReply();
-
-    const category = interaction.options.getString('category') || 'meme';
-
+  run: async (client, interaction) => {
+    let replied = false;
     try {
+      await interaction.deferReply();
+      replied = true;
+
+      const category = interaction.options.getString('category') || 'meme';
       const response = await fetch(`https://meme-api.com/gimme/${category}`);
       if (!response.ok) throw new Error(`API error: ${response.status}`);
-      const data = await response.json();
 
-      if (!data || !data.url) {
-        return interaction.editReply({ content: "Couldn't find a meme in that category or the API response was invalid!" });
-      }
+      const data = await response.json();
+      if (!data || !data.url) throw new Error('Invalid API response');
 
       const embed = new EmbedBuilder()
         .setTitle(data.title)
@@ -43,12 +42,13 @@ module.exports = {
         .setFooter({ text: `👍 ${data.ups}` });
 
       await interaction.editReply({ embeds: [embed] });
+
     } catch (error) {
       console.error('Meme command error:', error);
-      if (interaction.deferred) {
+      if (replied) {
         await interaction.editReply({ content: 'Something went wrong while fetching your meme.' });
       } else {
-        await interaction.reply({ content: 'Something went wrong while fetching your meme.', ephemeral: true });
+        await interaction.reply({ content: 'Something went wrong while fetching your meme.', flags: 64 });
       }
     }
   },
