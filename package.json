@@ -4,7 +4,7 @@
   "description": "An Open Source discord bot with lots of features",
   "main": "index.js",
   "engines": {
-    "node": ">=16.6.0",
+    "node": "16.x",
     "npm": ">=7.20.0"
   },
   "scripts": {
@@ -68,20 +68,10 @@
     "ytdl-core": "^4.9.1",
     "ytdl-core-discord": "^1.2.4"
   },
-  "devDependencies": {
-    "node": "^16.10.0"
-  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Simpleboy353/REAPER-2.0.git"
+    "url": "https://github.com/Simpleboy353/REAPER-2.0.git"
   },
-  "keywords": [
-    "open-source",
-    "discord",
-    "discord-bot",
-    "discord.js",
-    "multi-purpose-bot"
-  ],
   "bugs": {
     "url": "https://github.com/Simpleboy353/REAPER-2.0/issues"
   },
