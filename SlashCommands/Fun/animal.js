@@ -24,7 +24,7 @@ module.exports = {
         )
     ),
 
-  async execute(interaction) {
+  run: async (client, interaction) => {
     const animal = interaction.options.getString('animal');
     const animalNameMap = {
       duck: 'Duck',
@@ -38,22 +38,32 @@ module.exports = {
       panda: 'Awww, check out this panda!'
     };
 
-    await interaction.deferReply();
     try {
-      const response = await fetch(`https://api.amymals.xyz/animal/${animal}`);
+      // Always defer immediately
+      await interaction.deferReply();
+
+      const response = await fetch(`https://api.amymals.xyz/animal/${animal}`, { timeout: 5000 });
+      if (!response.ok) throw new Error(`Failed to fetch: ${response.status}`);
+
       const data = await response.json();
 
       const embed = new EmbedBuilder()
         .setColor('#00FF00')
-        .setTitle(animalNameMap[animal])
-        .setDescription(data.description)
-        .setImage(data.image)
-        .setFooter({ text: data.fact });
+        .setTitle(animalNameMap[animal] || 'Animal')
+        .setDescription(data.description || 'No description available.')
+        .setImage(data.image || '')
+        .setFooter({ text: data.fact || '' });
 
       await interaction.editReply({ embeds: [embed] });
+
     } catch (error) {
-      console.error(error);
-      await interaction.editReply({ content: `Failed to fetch a ${animalNameMap[animal]} picture. Please try again later.` });
+      console.error('Animal command error:', error);
+      try {
+        // Always send something back
+        await interaction.editReply({ content: `❌ Failed to fetch ${animalNameMap[animal] || 'animal'}. Please try again.` });
+      } catch (e) {
+        console.error('Failed to edit reply:', e);
+      }
     }
   }
 };
