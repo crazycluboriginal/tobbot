@@ -9,12 +9,12 @@
   },
   "scripts": {
     "start": "node index.js",
+    "postinstall": "npm rebuild better-sqlite3 --build-from-source",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Tester",
   "license": "ISC",
   "dependencies": {
-    "@discord-player/downloader": "^3.0.1",
     "@discord-player/extractor": "^4.5.0",
     "@iamtraction/google-translate": "^1.1.2",
     "alexflipnote.js": "^2.5.0",
@@ -28,6 +28,7 @@
     "discord-fetch-all": "^3.0.0",
     "discord-gamecord": "^1.1.4",
     "discord-player": "^6.4.0",
+    "discord-player-youtubei": "^1.5.0",
     "discord-together": "^1.1.62",
     "discord.js": "^14.11.0",
     "djs-games": "^2.0.11",
