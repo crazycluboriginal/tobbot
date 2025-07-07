@@ -3,12 +3,6 @@ const mongoose = require("mongoose");
 
 const mongoPass = process.env.MONGO_URI;
 module.exports = (client) => {
-   const serverCount = client.guilds.cache.size;
-  const activityText = `over ${serverCount} servers`;
-
-  client.user.setPresence({ status: "streaming" });
-  client.user.setActivity(activityText, { type: "WATCHING" });
-
   let allMembers = new Set();
   client.guilds.cache.forEach((guild) => {
     guild.members.cache.forEach((member) => {
@@ -29,21 +23,24 @@ module.exports = (client) => {
     chalk.bgMagentaBright.black(` ${allMembers.size} members `)
   );
 
+  setTimeout(() => {
+    const serverCount = client.guilds.cache.size;
+    const activityText = `over ${serverCount} servers`;
+    client.user.setActivity(activityText, { type: 3 });
+  }, 3000);
+
+
   mongoose
     .connect(mongoPass, {
       useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useCreateIndex: true,
-      useFindAndModify: false,
+      useUnifiedTopology: true
     })
-    .then(
+    .then(() =>
       console.log(
-        chalk.bgGreenBright.black(
-          ` ${client.user.username} is alive`
-        )
+        chalk.bgGreenBright.black(` ${client.user.username} is alive`)
       )
     )
-    .catch((err) =>
+    .catch(() =>
       console.log(
         chalk.bgRedBright.black(
           ` ${client.user.username} could not connect to mongo DB `
