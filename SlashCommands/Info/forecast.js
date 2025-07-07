@@ -11,12 +11,24 @@ module.exports = {
             .setRequired(true)
     ),
 
-  async execute(interaction) {
-    await interaction.deferReply();
-    const rawCity = interaction.options.getString('city');
-    const apiKey = process.env.OPENWEATHER_API_KEY;
+  async run(client, interaction, args) {  // <<<< MUST be .run for your handler
+    if (!interaction.deferReply) {
+      return interaction.reply({ content: 'Interaction type not supported.', flags: 1 << 6 });
+    }
 
-    // Capitalise each word of the city input as user formatted
+    await interaction.deferReply();
+
+    const rawCity = args[0]?.trim();
+    const apiKey = "3c4048f209bab356f911291f74507907";
+
+    if (!apiKey) {
+      return await interaction.editReply('Weather API key is missing. Please contact the administrator.');
+    }
+
+    if (!rawCity) {
+      return await interaction.editReply('Please provide a valid city name.');
+    }
+
     const cityFormatted = rawCity
       .split(' ')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -31,19 +43,19 @@ module.exports = {
       broken: '⛅️',
       scattered: '🌤️',
       mist: '🌫️',
-      fog: '🌫️',
+      fog: '🌁',
     };
 
     try {
       const response = await axios.get('https://api.openweathermap.org/data/2.5/forecast', {
         params: { q: rawCity, appid: apiKey, units: 'metric' }
       });
-      const data = response.data;
 
-      // Select one entry per day (every 8th entry)
-      const forecastEntries = [];
-      for (let i = 0; i < data.list.length && forecastEntries.length < 5; i += 8) {
-        forecastEntries.push(data.list[i]);
+      const data = response.data;
+      const forecastEntries = data.list.filter(item => item.dt_txt.includes('12:00:00')).slice(0, 5);
+
+      if (forecastEntries.length === 0) {
+        return await interaction.editReply('No forecast data available for this city.');
       }
 
       const weatherEmbed = new EmbedBuilder()
@@ -78,9 +90,14 @@ module.exports = {
       });
 
       await interaction.editReply({ embeds: [weatherEmbed] });
+
     } catch (error) {
-      console.error('Error fetching weather forecast:', error);
-      await interaction.editReply('Oops! Something went wrong while fetching the weather forecast.');
+      console.error('Weather error:', error);
+      if (error.response && error.response.status === 404) {
+        await interaction.editReply('City not found. Please check the spelling and try again.');
+      } else {
+        await interaction.editReply('Failed to fetch weather data. Please try again later.');
+      }
     }
   }
 };

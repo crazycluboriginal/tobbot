@@ -13,10 +13,10 @@ module.exports = {
 
     const embed = new EmbedBuilder()
       .setAuthor({ name: `${client.user.username}'s Info`, iconURL: client.user.displayAvatarURL() })
-      .setColor(Colors.Random)
+      .setColor("Random")
       .setDescription(
         `**Bot Name:** ${client.user.username}\n` +
-        `**Owner:** ๖ۣۜℜⱥjͥƤuͣtͫ#5915\n` +
+        `**Owner:** Vectorange\n` +
         `**Total Categories:** 8\n` +
         `**Total Commands:** 141\n` +
         `**Users:** ${client.users.cache.size}\n` +
@@ -29,10 +29,10 @@ module.exports = {
       .addFields({
         name: "Some Useful Links",
         value:
-          "**Get Infinity's Invite Link** [Here](https://discord.com/api/oauth2/authorize?client_id=733670294086221865&permissions=8&scope=bot)\n" +
-          "**Need Help?** Join Infinity's [Support Server](https://discord.gg/mqWprFc) for assistance"
+          "**Get Vectorange's Invite Link** [Here](https://dsc.gg/tobbot)\n" +
+          "**Need Help?** Join Vectorange's [Support Server](https://discord.gg/kRSu2DQM6W) for assistance"
       })
-      .setFooter({ text: "Regards, Infinity Bot Team" });
+      .setFooter({ text: "© toB Enterprises 2025"});
 
     await interaction.reply({ embeds: [embed] });
   },

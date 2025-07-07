@@ -2,31 +2,31 @@ const { EmbedBuilder, Colors, ApplicationCommandOptionType } = require("discord.
 const translate = require("@iamtraction/google-translate");
 
 const LANG_NAMES = {
-  ar:    "Arabic",
+  ar: "Arabic",
   "zh-CN": "Chinese (Simplified)",
   "zh-TW": "Chinese (Traditional)",
-  cs:    "Czech",
-  da:    "Danish",
-  nl:    "Dutch",
-  en:    "English",
-  fi:    "Finnish",
-  fr:    "French",
-  de:    "German",
-  el:    "Greek",
-  he:    "Hebrew",
-  hi:    "Hindi",
-  hu:    "Hungarian",
-  id:    "Indonesian",
-  it:    "Italian",
-  ja:    "Japanese",
-  ko:    "Korean",
-  no:    "Norwegian",
-  pl:    "Polish",
-  pt:    "Portuguese",
-  ro:    "Romanian",
-  ru:    "Russian",
-  es:    "Spanish",
-  sv:    "Swedish",
+  cs: "Czech",
+  da: "Danish",
+  nl: "Dutch",
+  en: "English",
+  fi: "Finnish",
+  fr: "French",
+  de: "German",
+  el: "Greek",
+  he: "Hebrew",
+  hi: "Hindi",
+  hu: "Hungarian",
+  id: "Indonesian",
+  it: "Italian",
+  ja: "Japanese",
+  ko: "Korean",
+  no: "Norwegian",
+  pl: "Polish",
+  pt: "Portuguese",
+  ro: "Romanian",
+  ru: "Russian",
+  es: "Spanish",
+  sv: "Swedish",
 };
 
 module.exports = {
@@ -49,22 +49,39 @@ module.exports = {
   ],
 
   run: async (client, interaction) => {
-    const text = interaction.options.getString("text");
+    const text = interaction.options.getString("text").trim();
     const language = interaction.options.getString("language");
     const langName = LANG_NAMES[language] || language;
 
+    if (!text) {
+      return await interaction.reply({ content: "Please provide text to translate.", ephemeral: true });
+    }
+
+    if (text.length > 5000) {
+      return await interaction.reply({ content: "Text too long. Please limit to 5000 characters.", ephemeral: true });
+    }
+
     try {
       const res = await translate(text, { to: language });
+
+      if (!res.text || res.text.trim() === "") {
+        return await interaction.reply({ content: "Translation failed or returned no result.", ephemeral: true });
+      }
+
       const embed = new EmbedBuilder()
-        .setTitle(`Translated from ${langName}`)
+        .setTitle(`Translated to ${langName}`)
         .setDescription(res.text)
-        .setColor(Colors.Random)
+        .setColor(Math.floor(Math.random() * 16777215))
         .setTimestamp();
 
       await interaction.reply({ embeds: [embed] });
+
     } catch (err) {
-      console.error("Error translating text:", err);
-      await interaction.reply({ content: "Please provide a valid ISO language code.", ephemeral: true });
+      console.error("Translation error:", err);
+      await interaction.reply({
+        content: "An error occurred while translating. Please try again later.",
+        ephemeral: true,
+      });
     }
   },
 };

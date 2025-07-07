@@ -10,7 +10,7 @@ module.exports = {
     await interaction.deferReply();
 
     const apiUrl = 'https://api.api-ninjas.com/v1/bucketlist';
-    const headers = { 'X-Api-Key': "kUbHc84s5XrO12w/Kk7eCg==4X74mFYTQRjACVwB"}; 
+    const headers = { 'X-Api-Key': process.env.API_NINJAS_KEY}; 
 
     try {
       const response = await axios.get(apiUrl, { headers });

@@ -1,6 +1,6 @@
 const { EmbedBuilder, Colors, ApplicationCommandOptionType } = require("discord.js");
 const axios = require("axios");
-const apiKey = 'kUbHc84s5XrO12w/Kk7eCg==4X74mFYTQRjACVwB';
+const apiKey = process.env.API_NINJAS_KEY;
 
 module.exports = {
   name: "history",
@@ -33,7 +33,7 @@ module.exports = {
       const event = eventData[0];
       const dateValue = `${event.day}/${event.month}/${event.year}`;
       const eventEmbed = new EmbedBuilder()
-        .setColor(Colors.Random)
+        .setColor("Random")
         .setTitle('Historical Event')
         .addFields(
           { name: 'Date', value: dateValue, inline: true },

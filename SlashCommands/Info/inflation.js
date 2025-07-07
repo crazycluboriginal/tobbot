@@ -1,6 +1,6 @@
 const { EmbedBuilder, Colors, ApplicationCommandOptionType } = require('discord.js');
 const axios = require('axios');
-const apiKey = process.env.API_NINJAS_KEY || 'kUbHc84s5XrO12w/Kk7eCg==4X74mFYTQRjACVwB';
+const apiKey = process.env.API_NINJAS_KEY;
 
 module.exports = {
   name: 'inflation',

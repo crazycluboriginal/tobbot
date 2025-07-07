@@ -1,27 +1,34 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
+const he = require('he');
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('bibleverse')
-    .setDescription('Fetch a random Bible verse'),
+    .setDescription('Fetch the Bible Verse of the Day'),
 
-  async execute(interaction) {
+  run: async (client, interaction, args) => {
     await interaction.deferReply();
     try {
-      const res = await axios.get('https://api.scripture.api.bible/v1/bibles/de4e12af7f28f599-02/verses/random', {
-        headers: { 'api-key': process.env.BIBLE_API_KEY }
-      });
-      const verse = res.data.data;
+      const res = await axios.get('https://www.biblegateway.com/votd/get/?format=json');
+      const verseData = res.data.votd;
+      const verseText = he.decode(verseData.text.replace(/<[^>]*>/g, '')); 
+      const reference = verseData.reference;
+      const permalink = verseData.permalink;
+
       const embed = new EmbedBuilder()
-        .setTitle(`${verse.reference}`)
-        .setDescription(verse.content.replace(/<\/?[^>]+(>|$)/g, '')) // strip HTML
-        .setFooter({ text: verse.bibleName })
+        .setColor('Random')
+        .setTitle('Bible Verse of the Day')
+        .setURL(permalink)
+        .setDescription(verseText)
+        .setFooter({ text: reference })
         .setTimestamp();
+
       await interaction.editReply({ embeds: [embed] });
-    } catch (err) {
-      console.error('Error fetching bible verse:', err);
-      await interaction.editReply('Couldn’t retrieve a Bible verse at this time.');
+
+    } catch (error) {
+      console.error(error);
+      await interaction.editReply('Unable to retrieve a verse at this time. Please try again later.');
     }
   },
 };

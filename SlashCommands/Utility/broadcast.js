@@ -89,7 +89,7 @@ module.exports = {
         await channel.send({ content: messageContent, files: file ? [file.url] : [] });
 
       } else if (format === "embed") {
-        const embed = new EmbedBuilder().setColor(Colors.Random);
+        const embed = new EmbedBuilder().setColor("Random");
 
         if (text) {
           const regex = /([#]{1,2}|\|\|?)\[(.*?)\]/g;

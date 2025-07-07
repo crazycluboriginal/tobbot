@@ -1,5 +1,5 @@
 const { PermissionsBitField } = require('discord.js');
-const OwnerID = 677354943925190676
+const OwnerID = 677354943925190676;
 
 module.exports = async (interaction, client) => {
   if (!interaction.isChatInputCommand()) return;
@@ -7,12 +7,10 @@ module.exports = async (interaction, client) => {
   const command = client.slash.get(interaction.commandName);
   if (!command) return interaction.reply({ content: 'An error occurred.', ephemeral: true });
 
-  // Owner-only check
   if (command.ownerOnly && interaction.user.id !== OwnerID) {
     return interaction.reply({ content: 'Command under development!', ephemeral: true });
   }
 
-  // User permissions check
   if (command.userPerms) {
     const member = interaction.guild.members.cache.get(interaction.user.id);
     if (!member.permissions.has(command.userPerms)) {
@@ -21,7 +19,6 @@ module.exports = async (interaction, client) => {
     }
   }
 
-  // Bot permissions check
   if (command.botPerms) {
     const botMember = interaction.guild.members.me;
     if (!botMember.permissions.has(command.botPerms)) {
@@ -32,7 +29,7 @@ module.exports = async (interaction, client) => {
 
   const args = [];
   for (const option of interaction.options.data) {
-    if (option.type === 1) { // SUB_COMMAND
+    if (option.type === 1) {
       args.push(option.name);
       for (const subOption of option.options || []) {
         if (subOption.value !== undefined) args.push(subOption.value);
@@ -43,7 +40,13 @@ module.exports = async (interaction, client) => {
   }
 
   try {
-    await command.run(client, interaction, args);
+    if (typeof command.run === 'function') {
+      await command.run(client, interaction, args);
+    } else if (typeof command.execute === 'function') {
+      await command.execute(interaction);
+    } else {
+      await interaction.reply({ content: 'This command is not properly configured.', ephemeral: true });
+    }
   } catch (e) {
     console.error(e);
     interaction.reply({ content: 'There was an error executing this command.', ephemeral: true });

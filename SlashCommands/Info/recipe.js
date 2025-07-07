@@ -1,6 +1,6 @@
 const { EmbedBuilder, ApplicationCommandOptionType } = require('discord.js');
 const fetch = require('node-fetch');
-const apiKey = 'kUbHc84s5XrO12w/Kk7eCg==4X74mFYTQRjACVwB';
+const apiKey = process.env.API_NINJAS_KEY;
 
 module.exports = {
   name: 'recipe',
