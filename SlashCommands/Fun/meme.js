@@ -5,58 +5,51 @@ const { EmbedBuilder } = require('discord.js');
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('meme')
-    .setDescription('Sends a random meme from Meme API. You can also pick a category (optional)')
+    .setDescription('Sends a random meme; you can pick a category (optional)')
     .addStringOption(option =>
       option
         .setName('category')
-        .setDescription('Choose a category for memes (optional)')
+        .setDescription('Choose a category for memes')
         .setRequired(false)
         .addChoices(
-          { name: 'General', value: 'meme' },
           { name: 'Programming', value: 'programming' },
-          { name: 'Dark', value: 'dark' },
-          { name: 'Wholesome', value: 'wholesome' },
-          { name: 'Pun', value: 'pun' },
-          { name: 'Cat', value: 'cat' }
+          { name: 'Dark jokes',  value: 'darkjokes'  },
+          { name: 'Wholesome',   value: 'wholesome'  },
+          { name: 'Pun',         value: 'pun'        },
+          { name: 'Cats',        value: 'cats'       }
         )
     ),
 
   run: async (client, interaction) => {
+    await interaction.deferReply();
+
+    const category = interaction.options.getString('category');
+    const url = category
+      ? `https://meme-api.com/gimme/${category}`
+      : 'https://meme-api.com/gimme';
+
     try {
-      // Always defer immediately to avoid 3-second timeout
-      await interaction.deferReply();
-
-      const category = interaction.options.getString('category') || 'meme';
-      const response = await fetch(`https://meme-api.com/gimme/${category}`, { timeout: 3000 });
-
+      const response = await fetch(url);
       if (!response.ok) {
-        await interaction.editReply({ content: '❌ Could not fetch meme. Try again later.' });
-        return;
+        return interaction.editReply('❌ Could not fetch meme. Try again later.');
       }
 
       const data = await response.json();
-      if (!data || !data.url) {
-        await interaction.editReply({ content: '❌ Invalid meme data received.' });
-        return;
+      if (!data.url) {
+        return interaction.editReply('❌ Invalid meme data received.');
       }
 
       const embed = new EmbedBuilder()
         .setTitle(data.title || 'Meme')
-        .setURL(data.postLink || 'https://reddit.com/r/memes')
+        .setURL(data.postLink)
         .setImage(data.url)
         .setColor(Math.floor(Math.random() * 0xFFFFFF))
         .setFooter({ text: `👍 ${data.ups || 0}` });
 
       await interaction.editReply({ embeds: [embed] });
-
     } catch (error) {
       console.error('Meme command error:', error);
-      // Always safe: editReply only, since deferReply was guaranteed
-      try {
-        await interaction.editReply({ content: '❌ Something went wrong while fetching your meme.' });
-      } catch (e) {
-        console.error('Failed to edit reply:', e);
-      }
+      await interaction.editReply('❌ Something went wrong while fetching your meme.');
     }
   },
 };

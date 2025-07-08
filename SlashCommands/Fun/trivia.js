@@ -1,15 +1,19 @@
 const fetch = require('node-fetch');
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const he = require('he');
 
 module.exports = {
+  name: 'trivia',
+  description: 'Get a random trivia question.',
+  options: [],
+
   data: new SlashCommandBuilder()
     .setName('trivia')
     .setDescription('Get a random trivia question.'),
 
-  async execute(interaction) {
+  run: async (client, interaction) => {
     await interaction.deferReply();
+
     try {
       const response = await fetch('https://opentdb.com/api.php?amount=1');
       const json = await response.json();
@@ -36,9 +40,10 @@ module.exports = {
         .setTimestamp();
 
       await interaction.editReply({ embeds: [embed] });
+
     } catch (error) {
       console.error('Trivia command error:', error);
-      await interaction.editReply({ content: 'Failed to fetch a trivia question.', ephemeral: true });
+      await interaction.editReply({ content: 'Failed to fetch a trivia question.' });
     }
   },
 };

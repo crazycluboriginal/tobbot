@@ -1,14 +1,18 @@
 const fetch = require('node-fetch');
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
 module.exports = {
+  name: 'advice',
+  description: 'Get a random piece of advice.',
+  options: [],
+
   data: new SlashCommandBuilder()
     .setName('advice')
     .setDescription('Get a random piece of advice'),
 
-  async execute(interaction) {
+  run: async (client, interaction) => {
     await interaction.deferReply();
+
     try {
       const response = await fetch('https://api.adviceslip.com/advice');
       const data = await response.json();
@@ -21,9 +25,10 @@ module.exports = {
         .setTimestamp();
 
       await interaction.editReply({ embeds: [embed] });
+
     } catch (error) {
       console.error('Advice command error:', error);
-      await interaction.editReply({ content: 'Failed to fetch advice. Please try again later.', ephemeral: true });
+      await interaction.editReply({ content: 'Failed to fetch advice. Please try again later.' });
     }
   },
 };
