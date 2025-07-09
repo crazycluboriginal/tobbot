@@ -154,11 +154,23 @@ process.on('uncaughtException', async err => {
   }
 });
 
-// On ready: register slash commands
+
 client.once('ready', async () => {
   console.log(chalk.bgBlueBright.black(` Logged in as ${client.user.tag} `));
   await loadSlashCommands(client);
 });
 
-// Login
+
 client.login(BOT_TOKEN);
+
+
+// client.once('ready', async () => {
+//   console.log(`${client.user.tag} is online.`);
+
+//   await client.application.commands.set([]);
+//   console.log('✅ All global slash commands cleared.');
+
+// });
+
+
+// git add . && git commit -m "Update project" && git push

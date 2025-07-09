@@ -2,15 +2,15 @@ const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 
 module.exports = {
-  data: new SlashCommandBuilder()
-    .setName('bucketlist')
-    .setDescription('Get a random bucket list item'),
+  name: 'bucketlist',
+  description: 'Get a random bucket list item',
+  options: [],
 
-  async execute(interaction) {
+  run: async (client, interaction) => {
     await interaction.deferReply();
 
     const apiUrl = 'https://api.api-ninjas.com/v1/bucketlist';
-    const headers = { 'X-Api-Key': process.env.API_NINJAS_KEY}; 
+    const headers = { 'X-Api-Key': process.env.API_NINJAS_KEY };
 
     try {
       const response = await axios.get(apiUrl, { headers });
@@ -24,7 +24,7 @@ module.exports = {
       await interaction.editReply({ embeds: [embed] });
     } catch (error) {
       console.error('Error fetching bucket list item:', error);
-      await interaction.editReply('Oops! Something went wrong while fetching the bucket list item.');
+      await interaction.editReply({ content: 'Oops! Something went wrong while fetching the bucket list item.' });
     }
   }
 };
