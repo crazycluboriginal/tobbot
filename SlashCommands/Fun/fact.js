@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, InteractionType } = require('discord.js');
 const axios = require('axios');
 
 module.exports = {
@@ -6,8 +6,11 @@ module.exports = {
     .setName('fact')
     .setDescription('Generate a random useless fact'),
 
-  async execute(interaction) {
+  async run(client, interaction) {
+    if (interaction.type !== InteractionType.ApplicationCommand) return;
+
     await interaction.deferReply();
+
     try {
       const response = await axios.get('https://uselessfacts.jsph.pl/random.json?language=en');
       const { text } = response.data;

@@ -1,24 +1,28 @@
 const { ReadableStream, Headers, Request, Response, Blob } = require('node:stream/web');
-// polyfill Web Streams globally
 global.ReadableStream = ReadableStream;
-global.Headers        = Headers;
-global.Request        = Request;
-global.Response       = Response;
-global.Blob           = Blob;
+global.Headers = Headers;
+global.Request = Request;
+global.Response = Response;
+global.Blob = Blob;
 
 require('dotenv').config();
 process.traceDeprecation = true;
 
 // --- Express Server Setup ---
 const express = require('express');
+const path = require('path');
 const app = express();
 const port = process.env.PORT || 8080;
 
-const BOT_TOKEN            = process.env.TOKEN;
+// Set EJS as view engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+const BOT_TOKEN = process.env.TOKEN;
 const ALEXFLIPNOTE_API_KEY = process.env.ALEXFLIPNOTE_API_KEY;
-const YT_COOKIE            = process.env.YT_COOKIE;
-const ERROR_LOGS_CHANNEL   = process.env.ERROR_LOGS_CHANNEL;
-const MONGO_URI            = process.env.MONGO_URI;
+const YT_COOKIE = process.env.YT_COOKIE;
+const ERROR_LOGS_CHANNEL = process.env.ERROR_LOGS_CHANNEL;
+const MONGO_URI = process.env.MONGO_URI;
 
 // MongoDB connection
 toBBotDB = require('mongoose');
@@ -28,21 +32,7 @@ toBBotDB.connect(MONGO_URI, {
   writeConcern: { w: 'majority' },
 });
 
-// Simple web UI
-app.get('/', (req, res) => {
-  res.send(`
-    <html>
-      <head><title>toBBot</title></head>
-      <body>
-        <h1>toBBot Slash Command Directory</h1>
-        <p>Server time: ${new Date()}</p>
-        <a href="/help">Help</a> |
-        <a href="/console">Console Logs</a>
-      </body>
-    </html>
-  `);
-});
-
+// Console log capture
 const consoleLogs = [];
 const originalConsoleLog = console.log;
 console.log = (...args) => {
@@ -51,40 +41,35 @@ console.log = (...args) => {
   originalConsoleLog.apply(console, args);
 };
 
+// Web routes using EJS
+app.get('/', (req, res) => {
+  res.render('index', { time: new Date() });
+});
+
 app.get('/console', (req, res) => {
-  const logsList = consoleLogs.map(l => `<li>${l}</li>`).join('');
-  res.send(`
-    <html>
-      <head><title>Console Logs</title></head>
-      <body>
-        <h1>Console Logs</h1>
-        <ul>${logsList}</ul>
-        <a href="/">Home</a>
-      </body>
-    </html>
-  `);
+  res.render('console', { logs: consoleLogs });
 });
 
 app.get('/help', (req, res) => {
-  res.send(`<html><body><h1>toBBot Help Menu</h1><p>Commands list here.</p></body></html>`);
+  res.render('help');
 });
 
 app.listen(port, () => console.log(`Express server listening on port ${port}`));
 
 // --- Discord Bot Setup ---
-const fs    = require('fs');
+const fs = require('fs');
 const chalk = require('chalk');
 const { Client, Collection, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const { DiscordTogether } = require('discord-together');
 const { Player } = require('discord-player');
-const { loadCommands }      = require('./handler/loadCommands');
-const { loadEvents }        = require('./handler/loadEvents');
+const { loadCommands } = require('./handler/loadCommands');
+const { loadEvents } = require('./handler/loadEvents');
 const { loadSlashCommands } = require('./handler/loadSlashCommands');
-const { loadPlayerEvents }  = require('./handler/loadPlayerEvents');
-const Enmap                = require('enmap');
-const Embeds               = require('./functions/embeds/Embeds');
-const Logger               = require('./functions/Logger/Logger');
-const Util                 = require('./functions/util/Util');
+const { loadPlayerEvents } = require('./handler/loadPlayerEvents');
+const Enmap = require('enmap');
+const Embeds = require('./functions/embeds/Embeds');
+const Logger = require('./functions/Logger/Logger');
+const Util = require('./functions/util/Util');
 
 const client = new Client({
   allowedMentions: { parse: ['users', 'roles'] },
@@ -101,22 +86,19 @@ const client = new Client({
   ],
 });
 
-// Initialize Enmap
 client.db = new Enmap({ name: 'musicdb', dataDir: './data' });
 
-// Custom properties
-client.images          = new (require('alexflipnote.js'))(ALEXFLIPNOTE_API_KEY);
+client.images = new (require('alexflipnote.js'))(ALEXFLIPNOTE_API_KEY);
 client.discordTogether = new DiscordTogether(client);
-client.commands        = new Collection();
-client.slash           = new Collection();
-client.aliases         = new Collection();
-client.categories      = fs.readdirSync('./Commands/');
+client.commands = new Collection();
+client.slash = new Collection();
+client.aliases = new Collection();
+client.categories = fs.readdirSync('./Commands/');
 client.setMaxListeners(0);
-client.logger          = Logger;
-client.utils           = Util;
-client.say             = Embeds;
+client.logger = Logger;
+client.utils = Util;
+client.say = Embeds;
 
-// Music player setup
 client.player = new Player(client, {
   leaveOnEnd: false,
   leaveOnStop: false,
@@ -131,13 +113,10 @@ client.player = new Player(client, {
   await client.player.extractors.loadDefault();
 })();
 
-// Load classical commands & events
 loadCommands(client);
 loadEvents(client);
 loadPlayerEvents(client);
-// Slash commands will register after ready
 
-// Error handling & channel logging
 process.on('uncaughtException', async err => {
   console.error('Uncaught Exception:', err);
   const embed = new EmbedBuilder()
@@ -154,12 +133,10 @@ process.on('uncaughtException', async err => {
   }
 });
 
-
 client.once('ready', async () => {
   console.log(chalk.bgBlueBright.black(` Logged in as ${client.user.tag} `));
   await loadSlashCommands(client);
 });
-
 
 client.login(BOT_TOKEN);
 
