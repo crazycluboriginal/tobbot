@@ -2,61 +2,196 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>toBBot Help</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.0/anime.min.js" defer></script>
   <style>
+    :root {
+      --bg-img: url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&h=900');
+      --overlay: rgba(0, 0, 0, 0.7);
+      --font-header: 'Orbitron', sans-serif;
+      --font-body: 'Roboto', sans-serif;
+      --text-light: #e0e0e0;
+      --accent-gen: #ff4757;
+      --accent-config: #3742fa;
+      --accent-info: #2ed573;
+      --accent-abstract: #ffa502;
+      --card-bg: rgba(20, 20, 20, 0.9);
+      --bar-bg: rgba(0, 0, 0, 0.8);
+      --search-bg: rgba(255,255,255,0.1);
+      --highlight: #ffea00;
+      --transition: 0.3s ease;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #121212;
-      color: #ffffff;
-      margin: 0;
-      padding: 60px 20px;
-      text-align: center;
+      font-family: var(--font-body);
+      background: var(--bg-img) center/cover no-repeat fixed;
+      position: relative;
+      color: var(--text-light);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    #particles-js { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+    .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--overlay); z-index: 1; }
+    .top-bar {
+      position: fixed; top: 0; left: 0; width: 100%;
+      background: var(--bar-bg);
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.5rem 1rem; z-index: 10;
+    }
+    .nav-links { display: flex; gap: 1rem; }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text-light);
+      font-family: var(--font-header);
+      font-weight: 700;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--highlight); }
+    .search-container input {
+      padding: 0.4rem 0.6rem;
+      border: none;
+      border-radius: 4px;
+      background: var(--search-bg);
+      color: var(--text-light);
+      outline: none;
+      width: 200px;
+      transition: width 0.3s;
+    }
+    .search-container input:focus { width: 300px; background: rgba(255,255,255,0.2); }
+    .container {
+      position: relative; z-index: 2;
+      padding: 4rem 1rem 2rem; max-width: 1200px; margin: 0 auto;
     }
     h1 {
-      font-size: 3rem;
-      color: #00ffc8;
-      margin-bottom: 20px;
+      font-family: var(--font-header);
+      font-size: 4rem;
+      text-align: center;
+      color: var(--text-light);
+      opacity: 0;
     }
-    p {
+    .intro {
+      text-align: center;
+      color: var(--text-light);
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      opacity: 0;
+    }
+    .category { margin-bottom: 3rem; }
+    .category h2 {
+      font-family: var(--font-header);
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      opacity: 0;
+      color: currentColor;
+    }
+    .commands-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px,1fr)); gap: 1.5rem; }
+    .command-card {
+      background: var(--card-bg);
+      border-left: 5px solid currentColor;
+      border-radius: 8px;
+      padding: 1rem;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: background var(--transition), transform var(--transition);
+    }
+    .command-card:hover { background: rgba(20,20,20,1); transform: translateY(0); }
+    .command-name {
+      font-family: var(--font-header);
       font-size: 1.3rem;
-      color: #bbbbbb;
-      margin-bottom: 30px;
-      max-width: 700px;
-      margin-left: auto;
-      margin-right: auto;
+      margin-bottom: 0.5rem;
     }
-    ul {
-      list-style-type: none;
-      padding: 0;
-      margin-bottom: 30px;
-    }
-    li {
-      margin: 10px 0;
-    }
-    a {
-      display: inline-block;
-      padding: 12px 24px;
-      font-size: 1rem;
-      text-decoration: none;
-      color: #121212;
-      background-color: #00ffc8;
-      border-radius: 6px;
-      transition: background-color 0.3s, transform 0.2s;
-    }
-    a:hover {
-      background-color: #00dab0;
-      transform: scale(1.05);
-    }
+    .command-desc { font-size: 0.95rem; line-height: 1.4; color: var(--text-light); }
+    .general-entertainment { color: var(--accent-gen); }
+    .toB-config      { color: var(--accent-config); }
+    .informational   { color: var(--accent-info); }
+    .abstract-fun    { color: var(--accent-abstract); }
+    .highlight { background: var(--highlight); color: #000; }
   </style>
 </head>
 <body>
-  <h1>Help & Information</h1>
-  <p>Welcome to toBBot! This general-purpose bot offers random facts, animals, memes, the weather, and other fun features to enhance your Discord experience.</p>
-  <p>Available Pages:</p>
-  <ul>
-    <li><a href="/">Home</a></li>
-    <li><a href="/console">Console Logs</a></li>
-  </ul>
-  <p>If you encounter any issues, please contact <strong>@vectorange</strong> on Discord.</p>
+  <div id="particles-js"></div>
+  <div class="overlay"></div>
+  <div class="top-bar">
+    <div class="nav-links"><a href="/">Home</a><a href="/console">Console</a><a href="/help">Help</a></div>
+    <div class="search-container"><input type="text" id="search-box" placeholder="Search commands..."></div>
+  </div>
+  <div class="container">
+    <h1 id="main-title">Help & Information</h1>
+    <p class="intro">All commands are slash-prefixed. Use the search bar to find one quickly.</p>
+    <div class="category general-entertainment">
+      <h2>/ General Entertainment</h2>
+      <div class="commands-grid">
+        <div class="command-card"><div class="command-name">/rules</div><div class="command-desc">Full guidelines and bot rules.</div></div>
+        <div class="command-card"><div class="command-name">/bibletoday</div><div class="command-desc">Receive today’s bible verse.</div></div>
+        <div class="command-card"><div class="command-name">/meme</div><div class="command-desc">Fetch a random meme.</div></div>
+        <div class="command-card"><div class="command-name">/news</div><div class="command-desc">Latest world events.</div></div>
+        <div class="command-card"><div class="command-name">/joke</div><div class="command-desc">Hear a joke.</div></div>
+        <div class="command-card"><div class="command-name">/fact</div><div class="command-desc">Discover a fun fact.</div></div>
+      </div>
+    </div>
+    <div class="category toB-config">
+      <h2>/ toB Configuration</h2>
+      <div class="commands-grid">
+        <div class="command-card"><div class="command-name">/say</div><div class="command-desc">Make the bot say your message.</div></div>
+        <div class="command-card"><div class="command-name">/dm</div><div class="command-desc">Anonymous DM to a member.</div></div>
+        <div class="command-card"><div class="command-name">/reminder</div><div class="command-desc">Set reminder: /reminder [duration] [channel] [event].</div></div>
+        <div class="command-card"><div class="command-name">/poll</div><div class="command-desc">Create poll: /poll [title],[opt1],[opt2].</div></div>
+      </div>
+    </div>
+    <div class="category informational">
+      <h2>/ Informational</h2>
+      <div class="commands-grid">
+        <div class="command-card"><div class="command-name">/trivia</div><div class="command-desc">Trivia questions.</div></div>
+        <div class="command-card"><div class="command-name">/animal</div><div class="command-desc">Animal facts & pics.</div></div>
+        <div class="command-card"><div class="command-name">/quote</div><div class="command-desc">Inspire with quotes.</div></div>
+        <div class="command-card"><div class="command-name">/randomword</div><div class="command-desc">Random dictionary word.</div></div>
+        <div class="command-card"><div class="command-name">/rhyme</div><div class="command-desc">Find rhymes.</div></div>
+        <div class="command-card"><div class="command-name">/thesaurus</div><div class="command-desc">Look up synonyms.</div></div>
+        <div class="command-card"><div class="command-name">/convertcurrency</div><div class="command-desc">Convert currencies.</div></div>
+        <div class="command-card"><div class="command-name">/define</div><div class="command-desc">Define a word.</div></div>
+        <div class="command-card"><div class="command-name">/imagetotext</div><div class="command-desc">Extract text from images.</div></div>
+        <div class="command-card"><div class="command-name">/weather</div><div class="command-desc">Check current weather.</div></div>
+        <div class="command-card"><div class="command-name">/forecast</div><div class="command-desc">5-day forecast.</div></div>
+        <div class="command-card"><div class="command-name">/inflation</div><div class="command-desc">View inflation rates.</div></div>
+        <div class="command-card"><div class="command-name">/history</div><div class="command-desc">Lookup historical events.</div></div>
+      </div>
+    </div>
+    <div class="category abstract-fun">
+      <h2>/ Abstract & Fun</h2>
+      <div class="commands-grid">
+        <div class="command-card"><div class="command-name">/random</div><div class="command-desc">Random Reddit post.</div></div>
+        <div class="command-card"><div class="command-name">/bucketlist</div><div class="command-desc">Bucket list ideas.</div></div>
+        <div class="command-card"><div class="command-name">/kill</div><div class="command-desc">Playful 'kill' someone.</div></div>
+        <div class="command-card"><div class="command-name">/givetrait</div><div class="command-desc">Receive traits & fortunes.</div></div>
+        <div class="command-card"><div class="command-name">/vote</div><div class="command-desc">Vote for toB every 12h.</div></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      particlesJS.load('particles-js', '/particles.json');
+      anime.timeline({ easing: 'easeOutExpo', duration: 800 })
+        .add({ targets: '#main-title', opacity: [0,1], scale: [0.8,1], duration: 1000 })
+        .add({ targets: '.intro', opacity: [0,1], translateY: [-10,0], offset: '-=600' });
+      ['.general-entertainment h2','.toB-config h2','.informational h2','.abstract-fun h2'].forEach((sel,i) => {
+        anime({ targets: sel, opacity: [0,1], translateX: [-20,0], delay: 1200 + i*200, duration: 700 });
+      });
+      document.querySelectorAll('.command-card').forEach((el,i) => {
+        anime({ targets: el, opacity: [0,1], translateY: [20,0], delay: 1600 + i*50, duration: 600 });
+      });
+      // Search filter
+      const searchBox = document.getElementById('search-box');
+      searchBox.addEventListener('input', e => {
+        const term = e.target.value.toLowerCase();
+        document.querySelectorAll('.command-card').forEach(card => {
+          const name = card.querySelector('.command-name').textContent.toLowerCase();
+          card.style.display = name.includes(term) ? 'block' : 'none';
+        });
+      });
+    });
+  </script>
 </body>
 </html>

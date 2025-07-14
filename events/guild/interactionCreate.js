@@ -49,6 +49,11 @@ module.exports = async (interaction, client) => {
     }
   } catch (e) {
     console.error(e);
-    interaction.reply({ content: 'There was an error executing this command.', ephemeral: true });
+    if (interaction.deferred || interaction.replied) {
+      await interaction.editReply({ content: '❌ There was an error executing this command.', ephemeral: true });
+    } else {
+      await interaction.reply({ content: '❌ There was an error executing this command.', ephemeral: true });
+    }
   }
+
 };

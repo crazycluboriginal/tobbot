@@ -2,52 +2,102 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>toBBot Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The World of toB</title>
+  <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Rajdhani:wght@400;700&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.0/anime.min.js" defer></script>
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #121212;
-      color: #ffffff;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      text-align: center;
+    :root {
+      --bg-color: #000;
+      --overlay: rgba(0,0,0,0.6);
+      --neon1: #ff00ff;
+      --neon2: #00ffff;
+      --text-light: #e0e0e0;
+      --font-header: 'Audiowide', cursive;
+      --font-body: 'Rajdhani', sans-serif;
+      --bar-bg: rgba(10,10,10,0.8);
+      --search-bg: rgba(255,255,255,0.1);
+      --highlight: #ffea00;
     }
-    h1 {
-      font-size: 3rem;
-      color: #00ffc8;
-      margin-bottom: 20px;
-    }
-    p {
-      font-size: 1.4rem;
-      color: #bbbbbb;
-      margin-bottom: 40px;
-    }
-    a {
-      display: inline-block;
-      margin: 10px;
-      padding: 12px 24px;
-      font-size: 1rem;
-      text-decoration: none;
-      color: #121212;
-      background-color: #00ffc8;
-      border-radius: 6px;
-      transition: background-color 0.3s, transform 0.2s;
-    }
-    a:hover {
-      background-color: #00dab0;
-      transform: scale(1.05);
-    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family: var(--font-body); background: var(--bg-color); color: var(--text-light); overflow:hidden; }
+    canvas#three-bg, #particles-js { position:absolute; top:0; left:0; width:100%; height:100%; }
+    canvas#three-bg { z-index:0; }
+    #particles-js { z-index:1; }
+    .overlay { position:absolute; top:0; left:0; width:100%; height:100%; background: var(--overlay); z-index:2; }
+    /* Top bar */
+    .top-bar { position:absolute; top:0; left:0; width:100%; background: var(--bar-bg); display:flex; align-items:center; justify-content:space-between; padding:0.5rem 1rem; z-index:4; }
+    .nav-links { display:flex; gap:1rem; }
+    .nav-links a { text-decoration:none; color: var(--text-light); font-family: var(--font-header); font-weight:700; padding:0.3rem 0.6rem; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--neon1); }
+    .search-container { position:relative; }
+    .search-container input { padding:0.4rem 0.6rem; border:none; border-radius:4px; background: var(--search-bg); color: var(--text-light); outline:none; width:200px; transition: width 0.3s; }
+    .search-container input:focus { width:300px; background:rgba(255,255,255,0.2); }
+    /* Highlighted text */
+    .highlight { background: var(--highlight); color: #000; }
+    .container { position:relative; z-index:3; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; text-align:center; padding:0 20px; }
+    h1 { font-family: var(--font-header); font-size:4rem; color: var(--neon1); text-transform:uppercase; opacity:0; }
+    h1::before, h1::after { content: attr(data-text); position:absolute; top:0; left:0; width:100%; height:100%; color: var(--neon2); overflow:hidden; clip:rect(0,900px,0,0); animation:glitch 2.5s infinite; }
+    @keyframes glitch { 0% { clip:rect(0,100%,0,0); } 10% { clip:rect(20px,100%,25px,0); transform:translate(-3px,-3px);} 20% {clip:rect(50px,100%,75px,0);transform:translate(3px,3px);}30%{clip:rect(10px,100%,40px,0);transform:translate(-3px,3px);}40%{clip:rect(60px,100%,90px,0);transform:translate(3px,-3px);}50%{clip:rect(0,100%,100px,0);transform:translate(0,0);}100%{clip:rect(0,100%,0,0);transform:translate(0,0);} }
+    p { margin-top:1rem; font-size:1.2rem; color: var(--text-light); }
+    .buttons { margin-top:2rem; display:flex; gap:1rem; }
+    .buttons a { padding:12px 30px; font-size:1rem; text-decoration:none; color:#000; background:linear-gradient(45deg,var(--neon1),var(--neon2)); border-radius:50px; box-shadow:0 0 10px var(--neon1),0 0 20px var(--neon2); transition:transform 0.3s; }
+    .buttons a:hover { transform:scale(1.1) translateY(-3px); }
   </style>
 </head>
 <body>
-  <h1>Welcome to toBBot</h1>
-  <p>Server time: <%= time %></p>
-  <a href="/console">View Console Logs</a>
-  <a href="/help">Help & Info</a>
+  <canvas id="three-bg"></canvas>
+  <div id="particles-js"></div>
+  <div class="overlay"></div>
+  <div class="top-bar">
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/console">Console</a>
+      <a href="/help">Help</a>
+    </div>
+    <div class="search-container">
+      <input type="text" id="search-box" placeholder="Search...">
+    </div>
+  </div>
+  <div class="container">
+    <h1 id="headline" data-text="The toBBot Director">The toBBot Director</h1>
+    <p>Server time: <span id="time"></span></p>
+    <div class="buttons">
+      <a href="/console">/console</a>
+      <a href="/help">/help</a>
+    </div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // three.js background
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000);
+      const renderer = new THREE.WebGLRenderer({canvas:document.getElementById('three-bg'),alpha:true});
+      renderer.setSize(window.innerWidth,window.innerHeight);
+      camera.position.z = 50;
+      const knot = new THREE.Mesh(new THREE.TorusKnotGeometry(10,3,100,16), new THREE.MeshBasicMaterial({color:0xffffff,wireframe:true,opacity:0.2,transparent:true}));
+      scene.add(knot);
+      (function animate(){requestAnimationFrame(animate);knot.rotation.x+=0.005;knot.rotation.y+=0.01;renderer.render(scene,camera);})();
+      particlesJS.load('particles-js','/particles.json');
+      // title animation
+      anime.timeline({easing:'easeOutExpo',duration:1000})
+        .add({targets:'#headline',opacity:[0,1],scale:[0.8,1]});
+      // update time
+      function updateTime(){document.getElementById('time').textContent=new Date().toLocaleTimeString();}
+      setInterval(updateTime,1000);updateTime();
+      // search functionality
+      const searchBox = document.getElementById('search-box');
+      searchBox.addEventListener('input', e => {
+        const term = e.target.value.toLowerCase();
+        document.querySelectorAll('h1,h2,p,a,span').forEach(el => {
+          const text = el.textContent.toLowerCase();
+          el.innerHTML = text.includes(term) && term ? el.textContent.replace(new RegExp(term,'gi'), match => `<span class="highlight">${match}</span>`) : el.textContent;
+        });
+      });
+    });
+    window.addEventListener('resize', ()=>{renderer.setSize(window.innerWidth,window.innerHeight);camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();});
+  </script>
 </body>
 </html>

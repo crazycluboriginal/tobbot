@@ -1,63 +1,160 @@
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <title>toBBot Console</title>
-        <style>
-          body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121212;
-            color: #ffffff;
-            padding: 40px;
-            margin: 0;
-          }
-          h1 {
-            font-size: 3rem;
-            color: #00ffc8;
-            text-align: center;
-            margin-bottom: 30px;
-          }
-          ul {
-            list-style-type: none;
-            padding: 0;
-            max-width: 800px;
-            margin: 0 auto;
-          }
-          li {
-            background: #1e1e1e;
-            margin-bottom: 12px;
-            padding: 15px 20px;
-            border-left: 5px solid #00ffc8;
-            border-radius: 6px;
-            font-family: monospace;
-            word-break: break-all;
-            transition: background 0.3s, transform 0.2s;
-          }
-          li:hover {
-            background: #2a2a2a;
-            transform: scale(1.02);
-          }
-          a {
-            display: block;
-            text-align: center;
-            margin-top: 30px;
-            font-size: 1.1rem;
-            color: #00aaff;
-            text-decoration: none;
-            transition: color 0.2s;
-          }
-          a:hover {
-            color: #00ffc8;
-          }
-        </style>
-      </head>
-      <body>
-        <h1>toBBot Console Logs</h1>
-        <ul>
-          <% logs.forEach(log => { %>
-            <li><%= log %></li>
-          <% }); %>
-        </ul>
-        <a href="/">← Back to Home</a>
-      </body>
-      </html>
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>toBBot Console Logs</title>
+          <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js" defer></script>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js" defer></script>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.0/anime.min.js" defer></script>
+          <style>
+            :root {
+              --bg-dark: #121212;
+              --card-bg: #1f1f1f;
+              --accent: #ffeb3b;
+              --text-main: #f0f0f0;
+              --text-muted: #aaa;
+              --font-sans: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+              --bar-bg: rgba(18,18,18,0.9);
+              --text-light: #f0f0f0;
+              --search-bg: rgba(255,255,255,0.1);
+            }
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body {
+              font-family: var(--font-sans);
+              background: var(--bg-dark) url('https://images.unsplash.com/photo-1581091870625-5d06a9e1cc06?auto=format&fit=crop&w=1600') center/cover no-repeat fixed;
+              color: var(--text-main);
+              min-height: 100vh;
+              overflow-x: hidden;
+              position: relative;
+            }
+            /* Top bar */
+            .top-bar {
+              position: fixed;
+              top: 0;
+              left: 0;
+              width: 100%;
+              background: var(--bar-bg);
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              padding: 0.5rem 1rem;
+              z-index: 10;
+            }
+            .nav-links { display: flex; gap: 1rem; }
+            .nav-links a { text-decoration: none; color: var(--text-light); font-weight: bold; transition: color 0.2s; }
+            .nav-links a:hover { color: var(--accent); }
+            .search-container input {
+              padding: 0.4rem 0.6rem;
+              border: none;
+              border-radius: 4px;
+              background: var(--search-bg);
+              color: var(--text-main);
+              outline: none;
+              width: 200px;
+              transition: width 0.3s;
+            }
+            .search-container input:focus { width: 300px; background: rgba(255,255,255,0.2); }
+            .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(18,18,18,0.85); z-index: 0; }
+            .hero {
+              position: relative;
+              text-align: center;
+              padding: 6rem 1rem 2rem;
+              z-index: 1;
+            }
+            .hero img { width: 100px; animation: spin 20s linear infinite; }
+            .hero h1 {
+              font-size: 3.5rem;
+              color: var(--accent);
+              margin-top: 1rem;
+              text-shadow: 0 0 8px rgba(255,235,59,0.7);
+              opacity: 0;
+              transform: scale(0.8);
+            }
+            @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+            .logs-container {
+              position: relative;
+              z-index: 1;
+              max-width: 900px;
+              margin: 0 auto 3rem;
+              display: grid;
+              grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+              gap: 1.5rem;
+              padding: 0 1rem;
+            }
+            .log-card {
+              background: var(--card-bg);
+              border-left: 4px solid var(--accent);
+              border-radius: 8px;
+              padding: 1rem;
+              display: flex;
+              align-items: flex-start;
+              gap: 0.75rem;
+              opacity: 0;
+              transform: translateY(40px);
+              transition: transform 0.3s, background 0.3s;
+            }
+            .log-card:hover { background: #2a2a2a; }
+            .log-icon { width: 32px; flex-shrink: 0; filter: drop-shadow(0 0 4px var(--accent)); }
+            .log-text { font-family: monospace; color: var(--text-main); word-break: break-word; font-size: 0.95rem; line-height: 1.4; }
+            .back-link { display: block; text-align: center; margin: 2rem auto; color: var(--text-light); text-decoration: none; font-weight: 500; transition: color 0.3s; }
+            .back-link:hover { color: var(--accent); }
+          </style>
+        </head>
+        <body>
+          <canvas id="three-bg"></canvas>
+          <div id="particles-js"></div>
+          <div class="overlay"></div>
+          <div class="top-bar">
+            <div class="nav-links">
+              <a href="/">Home</a>
+              <a href="/console">Console Logs</a>
+              <a href="/help">Help</a>
+            </div>
+            <div class="search-container">
+              <input type="text" id="search-box" placeholder="Search logs...">
+            </div>
+          </div>
+          <div class="hero">
+            <img src="https://cdn-icons-png.flaticon.com/512/4712/4712027.png" alt="toBBot Logo">
+            <h1>toBBot Console Logs</h1>
+          </div>
+          <div class="logs-container">
+            <% logs.forEach(log => { %>
+              <div class="log-card">
+                <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Log Icon" class="log-icon">
+                <div class="log-text"><%= log %></div>
+              </div>
+            <% }); %>
+          </div>
+          <a href="/" class="back-link">← Back to Home</a>
+          <script>
+            document.addEventListener('DOMContentLoaded', ()=> {
+              // animate hero title
+              anime({ targets: '.hero h1', opacity: [0,1], scale: [0.8,1], duration: 800, easing: 'easeOutExpo' });
+              // animate log cards
+              gsap.to('.log-card', { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out' });
+              // search functionality
+              const searchBox = document.getElementById('search-box');
+              searchBox.addEventListener('input', e => {
+                const term = e.target.value.toLowerCase();
+                document.querySelectorAll('.log-text').forEach(el => {
+                  const text = el.textContent.toLowerCase();
+                  el.parentElement.style.display = (text.includes(term) ? 'flex' : 'none');
+                });
+              });
+              // three.js background
+              const scene = new THREE.Scene(); const camera = new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000);
+              const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-bg'), alpha: true }); renderer.setSize(window.innerWidth, window.innerHeight); camera.position.z = 50;
+              const knot = new THREE.Mesh(new THREE.TorusKnotGeometry(10,3,100,16), new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, opacity: 0.1, transparent: true })); scene.add(knot);
+              (function animateKnot(){ requestAnimationFrame(animateKnot); knot.rotation.x += 0.005; knot.rotation.y += 0.01; renderer.render(scene, camera); })();
+              particlesJS.load('particles-js', '/particles.json');
+              // update time (optional)
+              setInterval(() => { /* placeholder */ }, 1000);
+            });
+            window.addEventListener('resize', ()=>{ renderer.setSize(window.innerWidth, window.innerHeight); camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); });
+          </script>
+        </body>
+        </html>
