@@ -10,7 +10,7 @@
   <style>
     :root {
       --bg-img: url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&h=900');
-      --overlay: rgba(0, 0, 0, 0.7);
+      --overlay: rgba(0,0,0,0.7);
       --font-header: 'Orbitron', sans-serif;
       --font-body: 'Roboto', sans-serif;
       --text-light: #e0e0e0;
@@ -18,108 +18,139 @@
       --accent-config: #3742fa;
       --accent-info: #2ed573;
       --accent-abstract: #ffa502;
-      --card-bg: rgba(20, 20, 20, 0.9);
-      --bar-bg: rgba(0, 0, 0, 0.8);
+      --card-bg: rgba(20,20,20,0.9);
+      --bar-bg: rgba(0,0,0,0.8);
       --search-bg: rgba(255,255,255,0.1);
       --highlight: #ffea00;
       --transition: 0.3s ease;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin:0; padding:0; box-sizing:border-box; }
     body {
       font-family: var(--font-body);
       background: var(--bg-img) center/cover no-repeat fixed;
-      position: relative;
       color: var(--text-light);
+      position: relative;
       min-height: 100vh;
       overflow-x: hidden;
     }
-    #particles-js { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
-    .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--overlay); z-index: 1; }
+    #particles-js { position:absolute; top:0; left:0; width:100%; height:100%; z-index:0; }
+    .overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:var(--overlay); z-index:1; }
     .top-bar {
-      position: fixed; top: 0; left: 0; width: 100%;
-      background: var(--bar-bg);
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 0.5rem 1rem; z-index: 10;
+      position:fixed; top:0; left:0; width:100%;
+      background:var(--bar-bg);
+      display:flex; justify-content:space-between; align-items:center;
+      padding:0.5rem 1rem; z-index:10;
+      font-family:'Segoe UI', sans-serif;
     }
-    .nav-links { display: flex; gap: 1rem; }
+    .nav-links { display:flex; gap:1rem; }
     .nav-links a {
-      text-decoration: none;
-      color: var(--text-light);
-      font-family: var(--font-header);
-      font-weight: 700;
-      transition: color 0.2s;
+      text-decoration:none;
+      color:var(--text-light);
+      font-family:'Segoe UI', sans-serif;
+      font-weight:700;
+      transition:color 0.2s;
     }
-    .nav-links a:hover { color: var(--highlight); }
+    .nav-links a:hover { color:var(--highlight); }
     .search-container input {
-      padding: 0.4rem 0.6rem;
-      border: none;
-      border-radius: 4px;
-      background: var(--search-bg);
-      color: var(--text-light);
-      outline: none;
-      width: 200px;
-      transition: width 0.3s;
+      padding:0.4rem 0.6rem;
+      border:none; border-radius:4px;
+      background:var(--search-bg);
+      color:var(--text-light);
+      outline:none;
+      width:200px;
+      transition:width 0.3s;
+      font-family:'Segoe UI', sans-serif;
     }
-    .search-container input:focus { width: 300px; background: rgba(255,255,255,0.2); }
+    .search-container input:focus {
+      width:300px;
+      background:rgba(255,255,255,0.2);
+    }
     .container {
-      position: relative; z-index: 2;
-      padding: 4rem 1rem 2rem; max-width: 1200px; margin: 0 auto;
+      position:relative; z-index:2;
+      padding:5rem 1rem 2rem;
+      max-width:1200px;
+      margin:0 auto;
     }
-    h1 {
+    /* Animated Rainbow Title */
+    #main-title {
       font-family: var(--font-header);
-      font-size: 4rem;
-      text-align: center;
-      color: var(--text-light);
-      opacity: 0;
+      font-size:4.5rem;
+      text-align:center;
+      background: linear-gradient(-45deg,#ff0044,#00ff99,#0066ff,#ff00ff);
+      background-size:400% 400%;
+      animation:rainbow 8s ease infinite, pulse 3s ease-in-out infinite;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    @keyframes rainbow {
+      0%{background-position:0% 50%}
+      50%{background-position:100% 50%}
+      100%{background-position:0% 50%}
+    }
+    @keyframes pulse {
+      0%,100%{transform:scale(1)}
+      50%{transform:scale(1.05)}
     }
     .intro {
-      text-align: center;
-      color: var(--text-light);
-      font-size: 1.2rem;
-      margin-bottom: 2rem;
-      opacity: 0;
+      text-align:center;
+      font-size:1.2rem;
+      color:var(--text-light);
+      margin-bottom:2rem;
     }
-    .category { margin-bottom: 3rem; }
+    .category { margin-bottom:3rem; }
     .category h2 {
       font-family: var(--font-header);
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-      opacity: 0;
-      color: currentColor;
+      font-size:2.5rem;
+      margin-bottom:1rem;
+      color:currentColor;
     }
-    .commands-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px,1fr)); gap: 1.5rem; }
+    .commands-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+      gap:1.5rem;
+    }
     .command-card {
-      background: var(--card-bg);
-      border-left: 5px solid currentColor;
-      border-radius: 8px;
-      padding: 1rem;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: background var(--transition), transform var(--transition);
+      background:var(--card-bg);
+      border-left:5px solid currentColor;
+      border-radius:8px;
+      padding:1rem;
+      opacity:1;
+      transform:translateY(0);
+      transition:background var(--transition),transform var(--transition);
     }
-    .command-card:hover { background: rgba(20,20,20,1); transform: translateY(0); }
+    .command-card:hover { background:rgba(20,20,20,1); }
     .command-name {
       font-family: var(--font-header);
-      font-size: 1.3rem;
-      margin-bottom: 0.5rem;
+      font-size:1.3rem;
+      margin-bottom:0.5rem;
     }
-    .command-desc { font-size: 0.95rem; line-height: 1.4; color: var(--text-light); }
-    .general-entertainment { color: var(--accent-gen); }
-    .toB-config      { color: var(--accent-config); }
-    .informational   { color: var(--accent-info); }
-    .abstract-fun    { color: var(--accent-abstract); }
-    .highlight { background: var(--highlight); color: #000; }
+    .command-desc {
+      font-size:0.95rem;
+      line-height:1.4;
+      color:var(--text-light);
+    }
+    .general-entertainment { color:var(--accent-gen); }
+    .toB-config      { color:var(--accent-config); }
+    .informational   { color:var(--accent-info); }
+    .abstract-fun    { color:var(--accent-abstract); }
+    .highlight { background:var(--highlight); color:#000; }
   </style>
 </head>
 <body>
   <div id="particles-js"></div>
   <div class="overlay"></div>
   <div class="top-bar">
-    <div class="nav-links"><a href="/">Home</a><a href="/console">Console</a><a href="/help">Help</a></div>
-    <div class="search-container"><input type="text" id="search-box" placeholder="Search commands..."></div>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/console">Console Logs</a>
+      <a href="/help">Help</a>
+    </div>
+    <div class="search-container">
+      <input id="search-box" type="text" placeholder="Search commands...">
+    </div>
   </div>
   <div class="container">
-    <h1 id="main-title">Help & Information</h1>
+    <h1 id="main-title">Help &amp; Information</h1>
     <p class="intro">All commands are slash-prefixed. Use the search bar to find one quickly.</p>
     <div class="category general-entertainment">
       <h2>/ General Entertainment</h2>
@@ -172,23 +203,17 @@
   </div>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      particlesJS.load('particles-js', '/particles.json');
-      anime.timeline({ easing: 'easeOutExpo', duration: 800 })
-        .add({ targets: '#main-title', opacity: [0,1], scale: [0.8,1], duration: 1000 })
-        .add({ targets: '.intro', opacity: [0,1], translateY: [-10,0], offset: '-=600' });
-      ['.general-entertainment h2','.toB-config h2','.informational h2','.abstract-fun h2'].forEach((sel,i) => {
-        anime({ targets: sel, opacity: [0,1], translateX: [-20,0], delay: 1200 + i*200, duration: 700 });
-      });
-      document.querySelectorAll('.command-card').forEach((el,i) => {
-        anime({ targets: el, opacity: [0,1], translateY: [20,0], delay: 1600 + i*50, duration: 600 });
-      });
-      // Search filter
-      const searchBox = document.getElementById('search-box');
-      searchBox.addEventListener('input', e => {
-        const term = e.target.value.toLowerCase();
+      particlesJS.load('particles-js','/particles.json');
+      anime.timeline({ easing:'easeOutExpo', duration:800 })
+        .add({ targets:'#main-title', opacity:[0,1], scale:[0.8,1], duration:1000 });
+      anime({ targets:'.intro', opacity:[0,1], translateY:[-10,0], delay:800, duration:600 });
+      document.querySelectorAll('.category h2').forEach((el,i) => anime({ targets:el, opacity:[0,1], translateX:[-20,0], delay:1200+i*200, duration:700 }));
+      document.querySelectorAll('.command-card').forEach((el,i) => anime({ targets:el, opacity:[0,1], translateY:[20,0], delay:1600+i*50, duration:600 }));
+      document.getElementById('search-box').addEventListener('input', e => {
+        const term=e.target.value.toLowerCase();
         document.querySelectorAll('.command-card').forEach(card => {
-          const name = card.querySelector('.command-name').textContent.toLowerCase();
-          card.style.display = name.includes(term) ? 'block' : 'none';
+          const name=card.querySelector('.command-name').textContent.toLowerCase();
+          card.style.display=name.includes(term)?'block':'none';
         });
       });
     });
