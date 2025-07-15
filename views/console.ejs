@@ -24,7 +24,7 @@
                               * { margin: 0; padding: 0; box-sizing: border-box; }
                               body {
                                 font-family: var(--font-sans);
-                                background: url('https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZW0wYXF4MjA5ZHl2MXk3Ynl1cmM5aWFkM3lpbXI1N2YwcnBkcnlxcSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/iqomeQxDjuPkXB7kv4/giphy.gif') center/cover no-repeat fixed;
+                                background: url('tobbot.gif') center/cover repeat fixed;
                                 color: var(--text-main);
                                 min-height: 100vh;
                                 overflow-x: hidden;
@@ -39,7 +39,7 @@
                                 z-index: -1;
                               }
                               .overlay {
-                                position: absolute;
+                                position: fixed; 
                                 top: 0;
                                 left: 0;
                                 width: 100%;
@@ -47,6 +47,7 @@
                                 background: rgba(18,18,18,0.85);
                                 z-index: 0;
                               }
+
                               .top-bar {
                                 position: fixed;
                                 top: 0;
@@ -139,8 +140,6 @@
                               <% logs.forEach(log => { %>
                                 <div class="log-card"><img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Log Icon" class="log-icon"><div class="log-text"><%= log %></div></div>
                               <% }); %>
-                            </div>
-                            <a href="/" class="back-link">← Back to Home</a>
                             <script>
                               document.addEventListener('DOMContentLoaded', () => {
                                 gsap.to('.log-card', { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out' });
