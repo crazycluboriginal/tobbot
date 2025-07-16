@@ -9,7 +9,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.0/anime.min.js" defer></script>
   <style>
     :root {
-      --bg-img: url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&h=900');
+      --bg-img: url('help-background.png');
       --overlay: rgba(0,0,0,0.7);
       --font-header: 'Orbitron', sans-serif;
       --font-body: 'Roboto', sans-serif;
@@ -139,16 +139,7 @@
 <body>
   <div id="particles-js"></div>
   <div class="overlay"></div>
-  <div class="top-bar">
-    <div class="nav-links">
-      <a href="/">Home</a>
-      <a href="/console">Console Logs</a>
-      <a href="/help">Help</a>
-    </div>
-    <div class="search-container">
-      <input id="search-box" type="text" placeholder="Search commands...">
-    </div>
-  </div>
+  <%- include('partials/topbar') %>
   <div class="container">
     <h1 id="main-title">Help &amp; Information</h1>
     <p class="intro">All commands are slash-prefixed. Use the search bar to find one quickly.</p>
@@ -156,7 +147,7 @@
       <h2>/ General Entertainment</h2>
       <div class="commands-grid">
         <div class="command-card"><div class="command-name">/rules</div><div class="command-desc">Full guidelines and bot rules.</div></div>
-        <div class="command-card"><div class="command-name">/bibletoday</div><div class="command-desc">Receive today’s bible verse.</div></div>
+        <div class="command-card"><div class="command-name">/bibleverse</div><div class="command-desc">Receive today’s bible verse.</div></div>
         <div class="command-card"><div class="command-name">/meme</div><div class="command-desc">Fetch a random meme.</div></div>
         <div class="command-card"><div class="command-name">/news</div><div class="command-desc">Latest world events.</div></div>
         <div class="command-card"><div class="command-name">/joke</div><div class="command-desc">Hear a joke.</div></div>
@@ -166,8 +157,8 @@
     <div class="category toB-config">
       <h2>/ toB Configuration</h2>
       <div class="commands-grid">
-        <div class="command-card"><div class="command-name">/say</div><div class="command-desc">Make the bot say your message.</div></div>
-        <div class="command-card"><div class="command-name">/dm</div><div class="command-desc">Anonymous DM to a member.</div></div>
+        <div class="command-card"><div class="command-name">/say</div><div class="command-desc">Make the bot repeat your message.</div></div>
+        <div class="command-card"><div class="command-name">/dm</div><div class="command-desc">Send an anonymous DM to a member.</div></div>
         <div class="command-card"><div class="command-name">/reminder</div><div class="command-desc">Set reminder: /reminder [duration] [channel] [event].</div></div>
         <div class="command-card"><div class="command-name">/poll</div><div class="command-desc">Create poll: /poll [title],[opt1],[opt2].</div></div>
       </div>
@@ -175,29 +166,29 @@
     <div class="category informational">
       <h2>/ Informational</h2>
       <div class="commands-grid">
-        <div class="command-card"><div class="command-name">/trivia</div><div class="command-desc">Trivia questions.</div></div>
-        <div class="command-card"><div class="command-name">/animal</div><div class="command-desc">Animal facts & pics.</div></div>
-        <div class="command-card"><div class="command-name">/quote</div><div class="command-desc">Inspire with quotes.</div></div>
-        <div class="command-card"><div class="command-name">/randomword</div><div class="command-desc">Random dictionary word.</div></div>
-        <div class="command-card"><div class="command-name">/rhyme</div><div class="command-desc">Find rhymes.</div></div>
-        <div class="command-card"><div class="command-name">/thesaurus</div><div class="command-desc">Look up synonyms.</div></div>
+        <div class="command-card"><div class="command-name">/trivia</div><div class="command-desc">Test your knowledge with this command!</div></div>
+        <div class="command-card"><div class="command-name">/animal</div><div class="command-desc">Cute animal facts, accompanied by a cute animal pic. You may pick the animal you like.</div></div>
+        <div class="command-card"><div class="command-name">/quote</div><div class="command-desc">Motivate yourself for the day with inspiring quotes.</div></div>
+        <div class="command-card"><div class="command-name">/randomword</div><div class="command-desc">Receive a random dictionary word to broaden your vocabulary.</div></div>
+        <div class="command-card"><div class="command-name">/rhyme</div><div class="command-desc">Find rhymes for  your word of choice.</div></div>
+        <div class="command-card"><div class="command-name">/thesaurus</div><div class="command-desc">Writing and can't think of what word to use? Use this command to look up synonyms for any given word.</div></div>
         <div class="command-card"><div class="command-name">/convertcurrency</div><div class="command-desc">Convert currencies.</div></div>
-        <div class="command-card"><div class="command-name">/define</div><div class="command-desc">Define a word.</div></div>
-        <div class="command-card"><div class="command-name">/imagetotext</div><div class="command-desc">Extract text from images.</div></div>
-        <div class="command-card"><div class="command-name">/weather</div><div class="command-desc">Check current weather.</div></div>
-        <div class="command-card"><div class="command-name">/forecast</div><div class="command-desc">5-day forecast.</div></div>
-        <div class="command-card"><div class="command-name">/inflation</div><div class="command-desc">View inflation rates.</div></div>
-        <div class="command-card"><div class="command-name">/history</div><div class="command-desc">Lookup historical events.</div></div>
+        <div class="command-card"><div class="command-name">/define</div><div class="command-desc">Don't understand a word? Use this to find out its meaning immediately.</div></div>
+        <div class="command-card"><div class="command-name">/imagetotext</div><div class="command-desc">Instantly extract text from images with the power of AI.</div></div>
+        <div class="command-card"><div class="command-name">/weather</div><div class="command-desc">Check the current weather conditions for any city of your choice</div></div>
+        <div class="command-card"><div class="command-name">/forecast</div><div class="command-desc">Receive a 5-day forecast for the city of your choice.</div></div>
+        <div class="command-card"><div class="command-name">/inflation</div><div class="command-desc">View inflation rates for the country of your choice.</div></div>
+        <div class="command-card"><div class="command-name">/history</div><div class="command-desc">Look up historical events from any time.</div></div>
       </div>
     </div>
     <div class="category abstract-fun">
       <h2>/ Abstract & Fun</h2>
       <div class="commands-grid">
-        <div class="command-card"><div class="command-name">/random</div><div class="command-desc">Random Reddit post.</div></div>
-        <div class="command-card"><div class="command-name">/bucketlist</div><div class="command-desc">Bucket list ideas.</div></div>
-        <div class="command-card"><div class="command-name">/kill</div><div class="command-desc">Playful 'kill' someone.</div></div>
-        <div class="command-card"><div class="command-name">/givetrait</div><div class="command-desc">Receive traits & fortunes.</div></div>
-        <div class="command-card"><div class="command-name">/vote</div><div class="command-desc">Vote for toB every 12h.</div></div>
+        <div class="command-card"><div class="command-name">/random</div><div class="command-desc">Recieve a completely random Reddit post.</div></div>
+        <div class="command-card"><div class="command-name">/bucketlist</div><div class="command-desc">Things to try before you die.</div></div>
+        <div class="command-card"><div class="command-name">/8ball</div><div class="command-desc">Consult the magic 8ball to decide your fortune.</div></div>
+        <div class="command-card"><div class="command-name">/recipe</div><div class="command-desc">Are you hungry? Try this command for some nourishment!</div></div>
+        <div class="command-card"><div class="command-name">/vote</div><div class="command-desc">Vote for toB every 12 hours on <a href = "https://top.gg/bot/704185963483496506/vote">top.gg</a> and <a href = "https://discordbotlist.com/bots/tobbot/upvote">discordbotlist</a>. Thanks for supporting us!</div></div>
       </div>
     </div>
   </div>
