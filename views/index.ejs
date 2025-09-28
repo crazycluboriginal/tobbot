@@ -1,97 +1,297 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>The toBBot Director</title>
+
+  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Rajdhani:wght@400;700&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+
+  <!-- Libs (kept) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.0/anime.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js" defer></script>
+
   <style>
-    :root {
-      --bg-color: #000;
+    :root{
+      --bg-1:#0b0f1a; --bg-2:#0c1024; --bg-3:#0b1a21;
+      --glass: rgba(255,255,255,0.06);
+      --glass-border: rgba(255,255,255,0.14);
+      --highlight:#ffea00;
+      --brand-1:#ff00b8; --brand-2:#00f0ff; --brand-3:#ffd166;
+
+      /* ORIGINAL NAV BAR VARS */
+      --bg-color:#000;
       --overlay: rgba(0,0,0,0.6);
       --font-header: 'Audiowide', cursive;
       --font-body: 'Rajdhani', sans-serif;
       --font-topbar: 'Segoe UI', sans-serif;
       --bar-bg: rgba(10,10,10,0.8);
       --search-bg: rgba(255,255,255,0.1);
-      --highlight: #ffea00;
     }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family: var(--font-body); background: var(--bg-color); color: #e0e0e0; overflow:hidden; }
-    canvas#three-bg, #particles-js { position:absolute; top:0; left:0; width:100%; height:100%; }
-    canvas#three-bg { z-index:0; }
-    #particles-js { z-index:1; }
-    .overlay { position:absolute; top:0; left:0; width:100%; height:100%; background: var(--overlay); z-index:2; }
-    .top-bar { position:absolute; top:0; left:0; width:100%; background: var(--bar-bg); display:flex; align-items:center; justify-content:space-between; padding:0.5rem 1rem; z-index:4; }
-    .nav-links { display:flex; gap:1rem; }
-    .nav-links a { text-decoration:none; color:#e0e0e0; font-family: var(--font-topbar); font-weight:700; transition: color 0.2s; }
-    .nav-links a:hover { color: var(--highlight); }
-    .search-container input { padding:0.4rem 0.6rem; border:none; border-radius:4px; background: var(--search-bg); color:#e0e0e0; outline:none; width:200px; font-family: var(--font-topbar); transition: width 0.3s; }
-    .search-container input:focus { width:300px; background:rgba(255,255,255,0.2); }
-    .container { position:relative; z-index:3; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; text-align:center; padding:0 20px; }
-    h1 {
-      font-family: var(--font-header);
-      font-size:4rem;
-      background: linear-gradient(-45deg, #ff0044, #00ff99, #0066ff, #ff00ff);
-      background-size: 400% 400%;
-      animation: rainbow 10s ease infinite;
-      -webkit-background-clip: text;
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      font-family:'Rajdhani',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      color:#e8e9ef;
+      background: radial-gradient(80% 120% at 20% 10%, #14203a 0%, rgba(20,32,58,0) 60%),
+                  radial-gradient(90% 120% at 80% 80%, #1b2a5c 0%, rgba(27,42,92,0) 60%),
+                  linear-gradient(120deg,var(--bg-1),var(--bg-2) 45%,var(--bg-3));
+      overflow:hidden;
+    }
+
+    /* Animated aurora layer */
+    .aurora{
+      position:fixed; inset:0; z-index:0; pointer-events:none;
+      background:
+        conic-gradient(from 180deg at 30% 20%, rgba(255,0,184,.25), rgba(0,240,255,.18), rgba(255,209,102,.18), rgba(255,0,184,.25)),
+        radial-gradient(60% 80% at 70% 30%, rgba(0,240,255,.22), transparent 60%),
+        radial-gradient(50% 70% at 20% 80%, rgba(255,0,184,.18), transparent 60%);
+      filter: blur(40px) saturate(120%);
+      animation: auroraShift 32s linear infinite;
+    }
+    @keyframes auroraShift{
+      0%{transform:translate3d(0,0,0) rotate(0deg)}
+      50%{transform:translate3d(0,-2%,0) rotate(180deg)}
+      100%{transform:translate3d(0,0,0) rotate(360deg)}
+    }
+
+    /* Three.js + particles layers (kept) */
+    canvas#three-bg, #particles-js{position:fixed; inset:0; width:100%; height:100%;}
+    canvas#three-bg{z-index:1;}
+    #particles-js{z-index:2;}
+
+    /* Soft vignette */
+    .vignette{
+      position:fixed; inset:-20vmax; z-index:3; pointer-events:none;
+      background: radial-gradient(140vmax 120vmax at 50% 50%, rgba(0,0,0,0) 60%, rgba(0,0,0,.35) 100%);
+    }
+
+    /* ORIGINAL NAV BAR STYLES (UNCHANGED DESIGN) */
+    .top-bar{
+      position:absolute; top:0; left:0; width:100%;
+      background: var(--bar-bg);
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0.5rem 1rem;
+      z-index:6; /* ensure above backgrounds and hero */
+    }
+    .nav-links{ display:flex; gap:1rem; }
+    .nav-links a{
+      text-decoration:none; color:#e0e0e0;
+      font-family: var(--font-topbar); font-weight:700;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover{ color: var(--highlight); }
+    .search-container input{
+      padding:0.4rem 0.6rem; border:none; border-radius:4px;
+      background: var(--search-bg); color:#e0e0e0; outline:none; width:200px;
+      font-family: var(--font-topbar); transition: width 0.3s, background 0.3s;
+    }
+    .search-container input:focus{ width:300px; background:rgba(255,255,255,0.2); }
+
+    /* Main content */
+    .container{ position:relative; z-index:5; height:100vh; display:grid; place-items:center; padding:2rem; }
+    .hero{
+      width:min(100%, 900px);
+      padding:2.2rem 2.4rem;
+      border-radius:24px;
+      background: var(--glass);
+      border:1px solid var(--glass-border);
+      box-shadow: 0 10px 40px rgba(0,0,0,.35);
+      backdrop-filter: blur(14px) saturate(130%);
+    }
+
+    h1{
+      font-family:'Audiowide', cursive;
+      font-size: clamp(2.2rem, 6vw, 4.2rem);
+      letter-spacing:.5px; line-height:1.1; margin-bottom:.6rem;
+      background: linear-gradient(90deg, #fff, #cde6ff);
+      -webkit-background-clip:text; background-clip:text;
       -webkit-text-fill-color: transparent;
-      opacity:0;
+      text-shadow: 0 0 20px rgba(255,255,255,.08);
+      display:flex; align-items:baseline; gap:.4ch;
     }
-    .cursive { font-family: cursive; display: inline-block; }
-    @keyframes rainbow { 0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%} }
-    p { margin-top:1rem; font-size:1.2rem; color:#e0e0e2; }
-    .invite-container { margin:1.5rem 0; }
-    #invite-btn {
-      display:inline-block; padding:16px 32px; font-size:1.2rem; font-family: var(--font-body);
-      background: linear-gradient(90deg, #ff0080, #ff8c00, #40e0d0);
-      background-size: 200% 200%; animation: inviteGradient 5s ease infinite;
-      color:#000; border:none; border-radius:50px; cursor:pointer;
-      box-shadow:0 0 10px rgba(255,255,255,0.5);
-      transition: transform 0.3s;
+    .type{ display:inline-block; white-space:nowrap; }
+    .cursor{ display:inline-block; width:1ch; color:#cfe3ff; animation: blink 1.05s steps(1) infinite; }
+    @keyframes blink{50%{opacity:0}}
+
+    p.sub{ margin:.4rem 0 1.2rem 0; font-size: clamp(1.05rem, 2.2vw, 1.25rem); color:#d6dae6; opacity:.95; }
+
+    /* CTA + buttons (kept) */
+    .invite-container{ margin:1.2rem 0 1.5rem }
+    #invite-btn{
+      display:inline-block; padding:14px 28px; font-size:1.1rem;
+      font-weight:700; letter-spacing:.3px;
+      background: linear-gradient(90deg, var(--brand-1), var(--brand-2), var(--brand-3));
+      background-size: 200% 200%; animation: inviteGradient 7s ease-in-out infinite;
+      color:#121212; border:none; border-radius:999px; cursor:pointer;
+      box-shadow: 0 8px 28px rgba(0, 240, 255, .18), 0 2px 8px rgba(255,0,184,.25);
+      transition: transform .28s ease, box-shadow .28s ease;
     }
-    #invite-btn:hover { transform: scale(1.05); }
-    @keyframes inviteGradient { 0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%} }
-    .buttons { margin-top:2rem; display:flex; gap:1rem; }
-    .buttons a { padding:12px 30px; font-size:1rem; text-decoration:none; color:#000; background:linear-gradient(45deg,#ff00ff,#00ffff); border-radius:50px; box-shadow:0 0 10px #ff00ff,0 0 20px #00ffff; transition:transform 0.3s; }
-    .buttons a:hover { transform:scale(1.1) translateY(-3px); }
+    #invite-btn:hover{ transform: translateY(-2px) scale(1.03) }
+    @keyframes inviteGradient{
+      0%{background-position:0% 50%}
+      50%{background-position:100% 50%}
+      100%{background-position:0% 50%}
+    }
+
+    .buttons{ display:flex; gap:.8rem; flex-wrap:wrap }
+    .buttons a{
+      padding:10px 22px; font-size:1rem; text-decoration:none; font-weight:700;
+      color:#0a0a0a; border-radius:999px;
+      background: linear-gradient(45deg, #ff00ff, #00ffff);
+      box-shadow: 0 6px 18px rgba(255,0,255,.18), 0 2px 8px rgba(0,255,255,.18);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .buttons a:hover{ transform: translateY(-3px) scale(1.06) }
+
+    /* Reduced motion accessibility */
+    @media (prefers-reduced-motion: reduce){
+      .aurora, #invite-btn{ animation: none !important }
+      canvas#three-bg{ display:none }
+      #particles-js{ display:none }
+      .cursor{ animation:none }
+    }
   </style>
 </head>
 <body>
+  <!-- Animated gradient/aurora -->
+  <div class="aurora" aria-hidden="true"></div>
+
+  <!-- Kept animated layers -->
   <canvas id="three-bg"></canvas>
   <div id="particles-js"></div>
-  <div class="overlay"></div>
+  <div class="vignette"></div>
+
+  <!-- ORIGINAL NAV BAR INCLUDE (unchanged) -->
   <%- include('partials/topbar') %>
+
+  <!-- Main -->
   <div class="container">
-    <h1 id="headline" data-text="The toBBot Director">The toBBot <span class="cursive">Director</span></h1>
-    <p>Server time: <span id="time"></span></p>
-    <div class="invite-container">
-      <button id="invite-btn" onclick="window.open('https://dsc.gg/tobbot','_blank')">Invite toB to your server today</button>
-    </div>
-    <div class="buttons">
-      <a href="/console">/console</a>
-      <a href="/help">/help</a>
-    </div>
+    <section class="hero" aria-label="Intro">
+      <h1 id="headline" data-text="The toBBot Director">
+        <span class="type" id="typed"></span><span class="cursor">|</span>
+      </h1>
+
+      <p class="sub">Server time: <span id="time"></span></p>
+
+      <div class="invite-container">
+        <button id="invite-btn" onclick="window.open('https://dsc.gg/tobbot','_blank')">Invite toB to your server today</button>
+      </div>
+
+      <div class="buttons">
+        <a href="/console">/console</a>
+        <a href="/help">/help</a>
+      </div>
+    </section>
   </div>
+
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const scene = new THREE.Scene(); const camera = new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000);
-      const renderer = new THREE.WebGLRenderer({canvas:document.getElementById('three-bg'),alpha:true}); renderer.setSize(window.innerWidth,window.innerHeight); camera.position.z=50;
-      const knot=new THREE.Mesh(new THREE.TorusKnotGeometry(10,3,100,16),new THREE.MeshBasicMaterial({color:0xffffff,wireframe:true,opacity:0.2,transparent:true})); scene.add(knot);
-      (function animate(){requestAnimationFrame(animate);knot.rotation.x+=0.005;knot.rotation.y+=0.01;renderer.render(scene,camera);})();
-      particlesJS.load('particles-js','/particles.json');
-      anime.timeline({easing:'easeOutExpo',duration:1000}).add({targets:'#headline',opacity:[0,1],scale:[0.8,1]});
-      function updateTime(){document.getElementById('time').textContent=new Date().toLocaleTimeString();}
-      setInterval(updateTime,1000);updateTime();
-      const inviteBtn=document.getElementById('invite-btn'); inviteBtn.addEventListener('mouseenter',()=>{confetti({particleCount:100,spread:70,origin:{y:0.6}});});
-      const searchBox=document.getElementById('search-box'); searchBox.addEventListener('input',e=>{const term=e.target.value.toLowerCase();document.querySelectorAll('h1,p,button,a').forEach(el=>{const txt=el.textContent.toLowerCase();el.innerHTML=txt.includes(term)&&term?el.textContent.replace(new RegExp(term,'gi'),match=>`<span style="background:${'#ffea00'};color:#000">${match}</span>`):el.textContent;});});
+      /* Three.js torus knot (kept) */
+      const canvas = document.getElementById('three-bg');
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, 0.1, 1000);
+      camera.position.z = 50;
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true });
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+      renderer.setSize(innerWidth, innerHeight);
+
+      const knot = new THREE.Mesh(
+        new THREE.TorusKnotGeometry(10, 3, 160, 28),
+        new THREE.MeshBasicMaterial({ color:0xffffff, wireframe:true, opacity:0.18, transparent:true })
+      );
+      scene.add(knot);
+
+      function animate(){
+        knot.rotation.x += 0.0045;
+        knot.rotation.y += 0.009;
+        renderer.render(scene, camera);
+        requestAnimationFrame(animate);
+      }
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) animate();
+
+      /* Particles.js (kept) */
+      if (window.particlesJS) particlesJS.load('particles-js', '/particles.json');
+
+      /* Headline fade-in */
+      if (window.anime){
+        anime.timeline({ easing:'easeOutQuad', duration:900 })
+             .add({ targets:'.hero', opacity:[0,1], translateY:[8,0] });
+      }
+
+      /* Live time */
+      const timeEl = document.getElementById('time');
+      function updateTime(){ timeEl.textContent = new Date().toLocaleTimeString(); }
+      updateTime(); setInterval(updateTime, 1000);
+
+      /* Confetti hover (kept) */
+      const inviteBtn = document.getElementById('invite-btn');
+      inviteBtn.addEventListener('mouseenter', () => {
+        if (window.confetti){
+          confetti({ particleCount: 100, spread: 70, origin:{ y: 0.6 } });
+        }
+      });
+
+      /* Optional search box guard */
+      const searchBox = document.getElementById('search-box');
+      if (searchBox){
+        searchBox.addEventListener('input', e => {
+          const term = e.target.value.toLowerCase();
+          document.querySelectorAll('h1,p,button,a').forEach(el => {
+            const raw = el.textContent;
+            if (!term) { el.innerHTML = raw; return; }
+            el.innerHTML = raw.replace(new RegExp(term,'gi'), m => `<span style="background:${'#ffea00'};color:#000">${m}</span>`);
+          });
+        });
+      }
+
+      /* Typewriter with backspace loop */
+      const typed = document.getElementById('typed');
+      const source = document.getElementById('headline').dataset.text || 'The toBBot Director';
+      const phrases = [source]; // same title looping
+
+      const speed = { type: 85, erase: 55, pauseAfterType: 1200, pauseAfterErase: 600 };
+      let pi = 0, ci = 0, erasing = false;
+
+      function tick(){
+        const text = phrases[pi];
+
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches){
+          typed.textContent = text;
+          return;
+        }
+
+        if (!erasing){
+          ci++;
+          typed.textContent = text.slice(0, ci);
+          if (ci === text.length){
+            setTimeout(() => { erasing = true; tick(); }, speed.pauseAfterType);
+          } else {
+            setTimeout(tick, speed.type);
+          }
+        } else {
+          ci--;
+          typed.textContent = text.slice(0, ci);
+          if (ci === 0){
+            erasing = false;
+            pi = (pi + 1) % phrases.length;
+            setTimeout(tick, speed.pauseAfterErase);
+          } else {
+            setTimeout(tick, speed.erase);
+          }
+        }
+      }
+      tick();
+
+      /* Resize */
+      addEventListener('resize', () => {
+        renderer.setSize(innerWidth, innerHeight);
+        camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+      });
     });
-    window.addEventListener('resize',()=>{renderer.setSize(window.innerWidth,window.innerHeight);camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();});
   </script>
 </body>
 </html>
